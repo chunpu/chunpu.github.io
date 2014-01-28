@@ -1,6 +1,0 @@
-STATIC PAGES
------
-
-----
-
-[editor](/editor)
