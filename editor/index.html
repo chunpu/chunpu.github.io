@@ -1,0 +1,189 @@
+<!doctype html>
+<html>
+<head>
+	<title>editer</title>
+	<script src='./jade.js'></script>
+	<script src='./ace2.js'></script>
+	<script src='../pub/jquery.min.js'></script>
+</head>
+<style>
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+	}
+	body {
+		height: 100%;
+	}
+	textarea {
+		width: 100%;
+		height: 300px;
+	}
+	.edit-area {
+		position: absolute;
+		left: 0;
+		top: 0;
+		height: 100%;
+		width: 40%;
+		background: #ccc;
+	}
+	.top-bar h2 {
+		color: #999;
+		margin: 0;
+		font-size: 15px;
+		display: inline-block;
+		padding-left: 10px;
+		-webkit-transition: padding 0.2s;
+		-o-transition: padding 0.2s;
+		transition: padding 0.2s;
+	}
+	.top-bar {
+		position: relative;
+		padding: 5px 20px;
+		border-bottom: 3px solid #111
+	}
+	.edit-area > div {
+		height: 33.3%;
+		position: relative;
+		background: #1d1f20;
+		background: -webkit-linear-gradient(135deg, #1d1f20, #2f3031) !important;
+		background: -o-linear-gradient(45deg, #1d1f20, #2f3031) !important;
+		background: linear-gradient(45deg, #1d1f20, #2f3031) !important;
+	}
+	.editor {
+		position: relative;
+		height: calc(100% - 30px);
+	}
+	.preview {
+		position: absolute;
+		right: 0;
+		width: 60%;
+		top: 0;
+		height: 100%;
+	}
+	.preview > .box {
+		margin-left: 16px;
+	}
+	.resize {
+		position: absolute;
+		top: 0;
+		height: 100%;
+		width: 14px;
+		cursor: col-resize;
+		left: 0;
+		background: -webkit-linear-gradient(left, #505050, #383838);
+		border-left: 1px solid black;
+		border-right: 1px solid black;
+		box-shadow: inset 0 1px 0 #6e6e6e,0 2px 2px rgba(0,0,0,0.4);
+	}
+	::-webkit-scrollbar-corner{background-color:transparent;}
+	::-webkit-scrollbar-button{width:0;height:0;display:none; }
+	::-webkit-scrollbar-thumb{width:7px; background-color:#666; border-radius:7px; }
+	::-webkit-scrollbar{width:7px;height:7px;}
+	::-webkit-scrollbar-track{width:15px;}
+	::-webkit-scrollbar:hover{background-color:transparent;}
+</style>
+<body>
+	<div class='edit-area'>
+		<div>
+			<div class='top-bar'>
+				<h2>JADE</h2>
+			</div>
+			<div id='html-edit' class='editor'>
+			</div>
+		</div>
+
+		<div>
+			<div class='top-bar'>
+				<h2>CSS</h2>
+			</div>
+			<div id='css-edit' class='editor'></div>
+		</div>
+
+		<div>
+			<div class='top-bar'>
+				<h2>JS</h2>
+			</div>
+			<div id='js-edit' class='editor'></div>
+		</div>
+	</div>
+
+	<div class='preview' id='test'>
+		<div class='resize'>
+		</div>
+		<div class='box'>
+		</div>
+	</div>
+</body>
+<script>
+	ace.config.set("basePath", "./src")
+	window.locals = {
+		title: 'title',
+		items: ['http://p1.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/22/1390362857166_360.jpg',
+		'http://p4.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/22/1390363037046_592.jpg',
+		'http://p3.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/22/1390363207154_597.jpg',
+		'http://p4.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/22/1390363476980_136.jpg',
+		'http://p1.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/22/1390363723071_330.jpg',
+		'http://p2.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/17/1389952844298_537.jpg',
+		'http://p2.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/17/1389952844298_537.jpg',
+		'http://p2.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/17/1389952844298_537.jpg',
+		'http://p2.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/17/1389952844298_537.jpg'
+		]
+	}
+
+	$(function() {
+		// html
+		window.htmlEditor = ace.edit("html-edit")
+		htmlEditor.setFontSize(20)
+		htmlEditor.getSession().setMode("ace/mode/jade")
+		htmlEditor.setTheme("ace/theme/monokai")
+
+		// css
+		window.cssEditor = ace.edit("css-edit")
+		cssEditor.setFontSize(20)
+		cssEditor.getSession().setMode("ace/mode/css")
+		cssEditor.setTheme("ace/theme/monokai")
+
+		// js
+		window.jsEditor = ace.edit("js-edit")
+		jsEditor.setFontSize(20)
+		jsEditor.getSession().setMode("ace/mode/javascript")
+		jsEditor.setTheme("ace/theme/monokai")
+
+		initValue()
+		bindEvent()
+	})
+
+	function initValue() {
+		htmlEditor.setValue(localStorage.html)
+		cssEditor.setValue(localStorage.css)
+		jsEditor.setValue(localStorage.js)
+		refreshView()
+	}
+
+	function refreshView() {
+		var html = jade.render(localStorage.html, locals)
+		var box = $('.preview > .box')
+		box.html(html)
+		box.append('<style>' + localStorage.css + '</style>')
+		var script = document.createElement( 'script' )
+		script.innerHTML = localStorage.js
+		box.append(script)
+	}
+
+	function bindEvent() {
+		$(document).keydown(function(e) {
+			if (e.ctrlKey && e.keyCode == 83) {
+
+				localStorage.html = htmlEditor.getValue()
+				localStorage.css = cssEditor.getValue()
+				localStorage.js = jsEditor.getValue()
+				refreshView()
+				return false
+			}
+		})
+	}
+
+
+</script>
+</html>

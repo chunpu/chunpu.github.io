@@ -1,0 +1,693 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset='utf-8'>
+	<title>Theme generator</title>
+	<script src='../pub/less.min.js'></script>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+		a {
+			text-decoration: none;
+		}
+		a:hover {
+			text-decoration: underline;
+		}
+		ul {
+			list-style: none;
+		}
+
+		.cms-component {
+			margin-bottom: 50px;
+		}
+		.com-item {
+			float: left;
+			margin: 15px;
+		}
+		.com-head {
+			height: 38px;
+			background-color: #eee;
+			line-height: 38px;
+			padding: 0 30px;
+		}
+		.r {
+			float: right;
+		}
+		.l {
+			float: left;
+		}
+		.com-body {
+			padding: 10px 0 10px 15px;
+		}
+		#textarea {
+			width: 300px;
+			height: 500px;
+			float: left;
+			padding: 10px;
+		}
+		.com-text:hover {
+			color: inherit;
+		}
+		.classname {
+			margin: 30px;
+			float: left;
+		}
+		.com-title {
+			display: block;
+		}
+		.xpanel {
+			position: fixed;
+			display: inline-block;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			width: 400px;
+			background: #191818;
+			color: #999;
+			overflow: auto;
+		}
+		.preview {
+			padding: 50px;
+			position: fixed;
+			top: 0;
+			right: 0;
+			left: 400px;
+			bottom: 0;
+			display: inline-block;
+			overflow: auto;
+		}
+		.x-box {
+			padding: 10px	;
+		}
+		.x-box > div {
+			width: 200px;
+			padding: 10px;
+		}
+
+		.x-box > div div {
+			margin: 10px;
+		}
+		.theme {
+			width: 80px;
+			height: 80px;
+			float: left;
+			margin: 10px;
+			text-align: center;
+			line-height: 80px;
+			background: #ccc;
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body>
+	<style id='new-css'>
+	</style>
+	<script>
+		// 一个主题 直接对应less的变量
+		var themes = []
+		themes[0] = {
+			// com-title
+			'title-color': '#000000',
+			'title-font-size': 18,
+			'title-font-family': '',
+			// com-text
+			'text-color': '#6c6c6c',
+			'text-color-hover': '#4a7f07',
+			'text-font-size': 14,
+			'text-font-family': '',
+			// a
+			'a-color': '#000000',
+			'a-color-hover': '#82A90D',
+			'a-font-size': 14,
+			'a-font-family': '',
+			// com
+			'head-bg-color': '#eeeeee',
+			'wrapper-border-color': '#dddddd',
+			'wrapper-bg-color': '#ffffff',
+			// item
+			'item-margin-y': 15,
+			'item-margin-x': 15,
+			'item-img-color': '#DCDCDC',
+			'item-img-color-hover': '#82A90D',
+			'item-img-width': 120,
+			'item-height': 220,
+		}
+
+
+
+		themes[1] = {
+			// com-title
+			'title-color': '#ffffff',
+			'title-font-size': 18,
+			'title-font-family': '',
+			// com-text
+			'text-color': '#cccccc',
+			'text-color-hover': '#eeeeee',
+			'text-font-size': 14,
+			'text-font-family': '',
+			// a
+			'a-color': '#000000',
+			'a-color-hover': '#eeeeee',
+			'a-font-size': 14,
+			'a-font-family': '',
+			// com
+			'head-bg-color': '#000',
+			'wrapper-border-color': '#333333',
+			'wrapper-bg-color': '#777777',
+			// item
+			'item-margin-y': 15,
+			'item-margin-x': 15,
+			'item-img-color': '#DCDCDC',
+			'item-img-color-hover': '#eeeeee',
+			'item-img-width': 140,
+			'item-height': 280,
+		}
+
+		themes[2] = {
+			// com-title
+			'title-color': '#333333',
+			'title-font-size': 18,
+			'title-font-family': '',
+			// com-text
+			'text-color': '#6c6c6c',
+			'text-color-hover': '#4a7f07',
+			'text-font-size': 14,
+			'text-font-family': '',
+			// a
+			'a-color': '#000000',
+			'a-color-hover': '#82A90D',
+			'a-font-size': 14,
+			'a-font-family': '',
+			// com
+			'head-bg-color': '#794305',
+			'wrapper-border-color': '#794305',
+			'wrapper-bg-color': '#ffffff',
+			// item
+			'item-margin-y': 15,
+			'item-margin-x': 15,
+			'item-img-color': '#DCDCDC',
+			'item-img-color-hover': '#82A90D',
+			'item-img-width': 130,
+			'item-height': 240,
+		}
+
+
+		// 翻译
+		var translate = {
+			'title-color': '标题颜色',
+			'title-font-size': '标题大小',
+			'title-font-family': '标题字体',
+			// com-text
+			'text-color': '正文颜色',
+			'text-color-hover': '正文悬浮颜色',
+			'text-font-size': '正文大小',
+			'text-font-family': '正文字体',
+			// a
+			'a-color': 'a标签颜色',
+			'a-color-hover': 'a标签悬浮颜色',
+			'a-font-size': 'a标签大小',
+			'a-font-family': 'a标签字体',
+			// com
+			'head-bg-color': '头部背景颜色',
+			'wrapper-border-color': '主体边框颜色',
+			'wrapper-bg-color': '主体背景颜色',
+
+			'item-margin-x': '每单元横向间距',
+			'item-margin-y': '每单元纵向间距',
+			'item-img-color': '图片边框颜色',
+			'item-img-color-hover': '图片边框悬浮颜色',
+			'item-img-width': '图片宽度',
+			'item-height': '每单元高度',
+		}
+
+
+
+		function genType(conf) {
+			var o = {
+				color: [],
+				size: [],
+				family: [],
+				margin: [],
+				width: [],
+				height: [],
+			}
+			for (var key in conf) {
+				var a = conf[key]
+				var str = '<div>' + a.text
+				if (a.type === 'color') {
+					str += "<input type=color name=" + key + " value=" + a.value + " >"
+				//} else if (a.type === 'size') {
+				//	str += "<input type=range name=" + key + " value=" + a.value + " min=" + a.min + " max=" + a.max + " >"
+			} else if (a.type === 'family') {
+				str += "<select name=" + key + "><option>微软雅黑</option><option>Monospace</option><option>Consolas</option></select>"
+			} else if (['margin', 'width', 'height', 'size'].indexOf(a.type) !== -1) {
+				str += "<input type=range name=" + key + " value=" + a.value + " min=" + a.min + " max=" + a.max + " >"
+			}
+			str += '</div>'
+			o[a.type].push(str)
+		}
+		var html = ''
+		for (var key in o) {
+			html += '<div>' + o[key].join('\n') + '</div>'
+		}
+		return html
+	}
+
+	function genConf(theme) {
+		var conf = {}
+		for (var key in theme) {
+			conf[key] = {
+				text: translate[key] || key,
+				value: theme[key]
+			}
+			if (has(key, 'color')) {
+					//conf[key].type = 'color'
+				} else if (has(key, 'family')) {
+					//conf[key].type = 'select'
+				} else if (has(key, 'size')) {
+					conf[key].min = 12
+					conf[key].max = 30
+				} else if (has(key, 'margin')) {
+					conf[key].min = 0
+					conf[key].max = 60
+				} else if (has(key, 'width')) {
+					conf[key].min = 50
+					conf[key].max = 400
+				} else if (has(key, 'height')) {
+					//conf[key].type = 'height'
+					conf[key].min = 100
+					conf[key].max = 500
+				}
+			}
+			return conf
+
+
+			function has(key, sub) {
+				if (key.indexOf(sub) !== -1) {
+					conf[key].type = sub
+					return true
+				}
+				return false
+			}
+		}
+
+
+
+	</script>
+	<div class='xpanel'>
+		<div class='x-box'>
+			<div class='classname' data-class='com-title'>
+				<h3>com-title</h3>
+				<ul>
+					<li>颜色
+						<input type='color' name='title-color' value='#000000'>
+					</li>
+					<li>文字大小
+						<input type='range' name='title-font-size' value=18 min=4 max=40>
+					</li>
+					<li>字体
+						<select name='title-font-family'>
+							<option>微软雅黑</option>
+							<option>Monospace</option>
+							<option>Consolas</option>
+						</select>
+					</li>
+				</ul>
+			</div>
+			<div class='classname' data-class='com-text'>
+				<h3>com-text</h3>
+				<ul>
+					<li>颜色
+						<input type='color' name='text-color' value='#6c6c6c'>
+					</li>
+					<li>悬浮颜色
+						<input type='color' name='text-color-hover' value='#4a7f07'>
+					</li>
+					<li>文字大小
+						<input type='range' name='text-font-size' value=14 min=4 max=40>
+					</li>
+					<li>字体
+						<select name='text-font-family'>
+							<option value='微软雅黑'>微软雅黑</option>
+							<option>Monospace</option>
+							<option>Consolas</option>
+						</select>
+					</li>
+				</ul>
+			</div>
+			<div class='classname' data-class='a'>
+				<h3>a</h3>
+				<ul>
+					<li>颜色
+						<input type='color' name='a-color'>
+					</li>
+					<li>a:hover
+						<input type='color' name='a-color-hover' value='#82A90D'>
+					</li>
+					<li>文字大小
+						<input type='range' name='a-font-size' value=14 min=4 max=40>
+					</li>
+					<li>字体
+						<select name='a-font-family'>
+							<option value='微软雅黑'>微软雅黑</option>
+							<option>Monospace</option>
+							<option>Consolas</option>
+						</select>
+					</li>
+				</ul>
+			</div>
+			<div class='classname' data-class='com-item'>
+				<h3>com-item</h3>
+				<ul>
+					<li>图片间隔
+						<input type='range' name='item-margin' value=15 min=0 max=60>
+					</li>
+					<li>图片边框颜色
+						<input type='color' name='item-img-color' value=#DCDCDC>
+					</li>
+					<li>图片悬浮边框颜色
+						<input type='color' name='item-img-color-hover' value=#82A90D>
+					</li>
+				</ul>
+			</div>
+			<div class='classname' data-class='com-head'>
+				<h3>com本身</h3>
+				<ul>
+					<li>头部背景颜色
+						<input type='color' name='head-bg-color' value=#eeeeee>
+					</li>
+					<li>模块边框
+						<input type='color' name='wrapper-border' value=#eeeeee>
+					</li>
+					<li>模块背景颜色
+						<input type='color' name='wrapper-bg-color' value=#ffffff>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<p>css前缀(可没有, 或单个组件如`com-0123456`, 或全局cms-component)<p>
+			<p>组件id会显示在浏览器地址中</p>
+			<a style='background: #ccc;' href="javascript: $('.cms-layout').delegate('.cms-component', 'mouseover', function() {var a = this.className;a=a.match(/com-[0-9]*/)[0]; location.hash=a;})">寻找组件ID</a>, 拖动至书签栏, 在专题编辑页面点击即可
+			<br>
+			<input type='text' placeholder=cms-component class='prefix'>
+			<br><br>
+			<textarea id='textarea'>
+			</textarea>
+			<div style='clear: both'></div>
+		</div>
+
+
+
+
+
+
+		<div class='preview'>
+
+			<h1>CSS说明</h1>
+			<ul>
+				<li>com-title表示标题</li>
+				<li>com-title-3表示小标题</li>
+				<li>com-text:hover表示正文链接悬浮时状态</li>
+				<li>com-wraper表示组件主体容器</li>
+				<li>com-head表示组件头部容器</li>
+				<li>com-item表示组件中图片列表的一项</li>
+				<li>可选则在前面加上`.cms-component`来加大css权重</li>
+				<li>示例可见左侧下方的文本框</li>
+				<li>具体使用, 点开调整样式中的代码编辑, 找到/*css start theme*/, /*css end*/, 替换其中css, 或者按需求加在后面</li>
+			</ul>
+
+
+			<h1>其他主题测试</h1>
+			<div>
+				<div class='theme' data-theme=1>
+					主题测试1
+				</div>
+				<div class='theme' data-theme=2>
+					主题测试2
+				</div>
+				<div class='theme' data-theme=3>
+					主题测试3
+				</div>
+				<div style='clear: both;'></div>
+			</div>
+			<br>
+			宽度<input type='text' value='980' class='com2'>可用上下键调节
+			<div class='cms-component com2'>
+				<div class='com-wrapper'>
+					<div class='com-head'>
+						<div class='l'>
+							<a href='#' class='com-title'>图片列表</a>
+						</div>
+						<div class='r'>
+							<a href='#'  class='com-title'>More更多</a>
+						</div>
+					</div>
+					<div class='com-body'>
+						<a href='#' class='com-item com-text'>
+							<img src='../pub/test.jpg'>
+							<p>标题王珞丹</p>
+							<p>超长文字超长文字超长文字超长文字超长文字超长文字超长文字超长文字超长文字超长文字超长文字</p>
+						</a>
+						<a href='#' class='com-item com-text'>
+							<img src='../pub/test.jpg'>
+							<p>标题王珞丹</p>
+							<p>原子弹制造之谜</p>
+						</a>
+						<a href='#' class='com-item com-text'>
+							<img src='../pub/test.jpg'>
+							<p>标题王珞丹</p>
+							<p>原子弹制造之谜</p>
+						</a>
+						<a href='#' class='com-item com-text'>
+							<img src='../pub/test.jpg'>
+							<p>标题王珞丹</p>
+							<p>超长文字超长文字超长文字超长文字超长文字超长文字超长文字超长文字超长文字超长文字超长文字</p>
+						</a>
+						<a href='#' class='com-item com-text'>
+							<img src='../pub/test.jpg'>
+							<p>标题王珞丹</p>
+							<p>原子弹制造之谜</p>
+						</a>
+						<a href='#' class='com-item com-text'>
+							<img src='../pub/test.jpg'>
+							<p>标题王珞丹</p>
+							<p>原子弹制造之谜</p>
+						</a>
+						<a href='#' class='com-item com-text'>
+							<img src='../pub/test.jpg'>
+							<p>标题王珞丹</p>
+							<p>超长文字超长文字超长文字超长文字超长文字超长文字超长文字超长文字超长文字超长文字超长文字</p>
+						</a>
+						<a href='#' class='com-item com-text'>
+							<img src='../pub/test.jpg'>
+							<p>标题王珞丹</p>
+							<p>原子弹制造之谜</p>
+						</a>
+						<a href='#' class='com-item com-text'>
+							<img src='../pub/test.jpg'>
+							<p>标题王珞丹</p>
+							<p>原子弹制造之谜</p>
+						</a>
+						<a href='#' class='com-item com-text'>
+							<img src='../pub/test.jpg'>
+							<p>标题王珞丹</p>
+							<p>原子弹制造之谜</p>
+						</a>
+
+						<div style='clear: both'></div>
+					</div>
+				</div>
+			</div>
+
+
+			宽度<input type='text' value='270' class='com1'>可用上下键调节
+			<div class='cms-component com1'>
+				<div class='com-wrapper'>
+					<div class='com-body'>
+						<div class='com-text'>
+							<ul>
+								<li>
+									<a class='com-title' href='#'>张艺谋超生被罚款748万余元</a>
+									1月9日，无锡滨湖区计生局向张艺谋夫妇寄发社会抚养费征收决定书……
+								</li>
+								<li>
+									<a class='com-title' href='#'>张艺谋超生被罚款748万余元</a>
+									1月9日，无锡滨湖区计生局向张艺谋夫妇寄发社会抚养费征收决定书……
+								</li>
+								<li>
+									<a class='com-title' href='#'>张艺谋超生被罚款748万余元</a>
+									1月9日，无锡滨湖区计生局向张艺谋夫妇寄发社会抚养费征收决定书……
+								</li>
+								<li>
+									<a class='com-title' href='#'>张艺谋超生被罚款748万余元</a>
+									1月9日，无锡滨湖区计生局向张艺谋夫妇寄发社会抚养费征收决定书……
+								</li>
+								<li>
+									<a class='com-title' href='#'>张艺谋超生被罚款748万余元</a>
+									1月9日，无锡滨湖区计生局向张艺谋夫妇寄发社会抚养费征收决定书……
+								</li>
+								<li>
+									<a class='com-title' href='#'>张艺谋超生被罚款748万余元</a>
+									1月9日，无锡滨湖区计生局向张艺谋夫妇寄发社会抚养费征收决定书……
+								</li>
+
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+		<script>
+			window.onload = function() {
+
+				setTheme(themes[0])
+
+				window.themeDivs = document.querySelectorAll('.theme')
+				for (var i = 0; i < themeDivs.length; i++) {
+					themeDivs[i].addEventListener('click', function(e) {
+						var index = e.target.dataset.theme
+						index = ~~index - 1
+						console.log()
+						setTheme(themes[index])
+					})
+				}
+
+
+			//document.onclick = update
+		}
+
+		function setTheme(theme) {
+			var conf = genConf(theme)
+			var html = genType(conf)
+			document.querySelector('.x-box').innerHTML = html
+			//console.log(html)
+			window.inputs = document.querySelectorAll('.x-box input, .x-box select')
+			for (var i = 0; i < inputs.length; i++) {
+				inputs[i].addEventListener('change', update)
+			}
+
+			window.widths = document.querySelectorAll('.preview input')
+			for (var i = 0; i < widths.length; i++) {
+				widths[i].addEventListener('keydown', refreshWidth)
+				changeWidth(widths[i])
+			}
+			update()
+		}
+
+		function changeWidth(el) {
+			var className = el.className
+			var val = el.value
+			document.querySelector('.preview div.' + className).style.width = val + 'px'
+		}
+
+		function refreshWidth(e) {
+			setTimeout(function() {
+				var t = e.target
+				if (e.keyCode === 38) {
+					t.value ++
+				} else if (e.keyCode === 40) {
+					t.value --
+				}
+
+				if (t.value == ~~t.value && t.value > 100 && t.value < 1500) {
+					changeWidth(t)
+				}
+			}, 1)
+		}
+
+		function addPx(name) {
+			var arr = ['size', 'margin', 'padding', 'width', 'height']
+			for (var i = 0; i < arr.length; i++) {
+				if (name.indexOf(arr[i]) !== -1) {
+					return true
+				}
+			}
+		}
+		var parser = new less.Parser()
+		function parse(css) {
+			var ret
+			parser.parse(css, function(err, tree) {
+				ret = tree.toCSS()
+			})
+			return ret
+		}
+
+		function update() {
+			var arr = []
+			for (var i = 0; i < inputs.length; i++) {
+				var el = inputs[i]
+				var name = el.name
+				var value = el.value
+				if (addPx(name)) {
+					value += 'px'
+				}
+				arr.push('@' + name + ': ' + value + ';\n')
+			}
+			var mycss = document.getElementById('tmpl').innerHTML
+			var showcss = mycss
+			var prefix = document.querySelector('.prefix').value.trim()
+			if (prefix) {
+				showcss = '.' + prefix + '{\n' + mycss + '\n}'
+			}
+			var css = arr.join('') + mycss
+			css = parse(css)
+			showcss = arr.join('') + showcss
+			showcss = parse(showcss)
+			document.getElementById('new-css').innerHTML = css
+			document.getElementById('textarea').value = showcss
+		}
+	</script>
+	<script type='less' id='tmpl'>
+
+
+		a {
+			color: @a-color;
+			font-family: @a-font-family;
+			font-size: @a-font-size;
+			&:hover {
+				color: @a-color-hover;
+			}
+		}
+		.com-title {
+			color: @title-color;
+			font-family: @title-font-family;
+			font-size: @title-font-size;
+		}
+		.com-text {
+			color: @text-color;
+			font-family: @text-font-family;
+			font-size: @text-font-size;
+		}
+		a.com-text:hover {
+			color: @text-color-hover;
+		}
+		.com-item {
+			margin: @item-margin-y @item-margin-x;
+		}
+		.com-item img {
+			padding: 3px;
+			border: 1px solid @item-img-color;
+			width: @item-img-width;
+		}
+		.com-item {
+			width: (@item-img-width + 8);
+			height: @item-height;
+			overflow: hidden;
+		}
+		.com-item img:hover {
+			border-color: @item-img-color-hover;
+		}
+		.com-head {
+			background-color: @head-bg-color;
+		}
+		.com-wrapper {
+			border: 1px solid @wrapper-border-color;
+			background-color: @wrapper-bg-color;
+		}
+
+	</script>
+</body>
+</html>

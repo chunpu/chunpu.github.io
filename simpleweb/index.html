@@ -1,0 +1,1018 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset='utf-8'>
+	<script src='../pub/jquery.min.js'></script>
+</head>
+<style id='test_css'>
+	.col-411-4, .col-411-1 {
+		height: 400px;
+
+		float: left;
+		margin: 5px 10px;
+	}
+	.col-411-4 {
+		width: 400px;
+	}
+	.col-411-1 {
+		width: 100px;
+	}
+
+	a {
+		color: #000;
+	}
+	a:hover {
+		color: green;
+	}
+	a:active {
+		color: blue;
+	}
+	a:focus {
+		color: red;
+	}
+	a:visited {
+		color: yellow;
+	}
+</style>
+<style>
+	* {
+		margin: 0;
+		padding: 0;
+	}
+	ul {
+		list-style: none;
+	}
+	.clear, .row:after, .row:before{
+		display: table;
+		clear: both;
+		content: "";
+	}
+	.test {
+		width: 900px;
+		margin: 0 auto;
+	}
+	.demo_mod {
+		background: #444;
+		opacity: 1;
+		width: 150px;
+		height: 100px;
+		margin: 0 auto;
+	}
+	.resize {
+		position: absolute;
+		width: 10px;
+		top: 0;
+		bottom: 0;
+		right: 0;
+		cursor: e-resize;
+	}
+	.setting {
+		position: absolute;
+		top: 0;
+		right: 0;
+	}
+	.setting h3 {
+		cursor: pointer;
+	}
+	.setting ul {
+		display: none;
+	}
+	.setting li {
+		cursor: pointer;
+	}
+	.mod-000 {
+		padding: 100px 0;
+	}
+	.set-mod {
+		display: block;
+		margin: 0 auto;
+		width: 100px;
+		text-align: center;
+		cursor: pointer;
+	}
+
+	.preview {
+		position: fixed;
+		height: 300px;
+		top: 50%;
+		left: 50%;
+		margin-left: -40%;
+		margin-top: -150px;
+		width: 80%;
+		background: #ccc;
+		display: none;
+		z-index: 100;
+		padding: 10px;
+	}
+	.preview .r {
+		cursor: pointer;
+		padding: 5px;
+		background: #fff;
+	}
+	.r {
+		float: right;
+	}
+
+	.preview li {
+		float: left;
+	}
+
+	.preview .mod {
+		width: 300px;
+		border: 2px solid #fff;
+		margin: 10px;
+	}
+
+	.preview .active {
+		border: 2px solid red;
+	}
+
+	.mod-001 h1, .mod-002 h1 {
+		margin: 50px;
+	}
+	.mod {
+		border: 1px dotted #aaa;
+		background-color: #fff;
+		border-radius: 5px;
+		margin: 5px 0;
+	}
+	.grid .mod.active {
+		border-style: solid;
+		border-color: rgb(255, 137, 137);
+		background-color: rgb(255, 228, 228);
+	}
+	.mod.drag {
+		cursor: move;
+		position: relative;
+		z-index: 100;
+		opacity: 0.7;
+	}
+	.mod:hover {
+		border-style: solid;
+		border-color: #eac473;
+		background-color: #fff3d9;
+	}
+</style>
+<body>
+
+	<!-- menu 测试 -->
+	<style>
+		/* [1] */
+		/* [2] 150*/
+		/* [3] */
+		/* [4] */
+		/* [5] */
+		/* [6] */
+		/* Styles: */
+		.icon {
+			position: fixed;
+			background: #f26a16;
+			cursor: pointer;
+			margin: auto;
+			color: #eee;
+			border-radius: 50%;
+			height: 70px;
+			width: 70px;
+			line-height: 70px;
+			text-align: center;
+			font-size: 1.75em;
+			font-weight: bold;
+			transition: 0.24s 0.2s;
+			left: 200px;
+			top: 100px;
+			z-index: 100;
+		}
+
+		.icon:hover {
+			background: rgba(242, 106, 22, 0.75);
+		}
+
+		.menu {
+			position: absolute;
+			top: -115px;
+			left: -115px;
+			border: 150px solid transparent;
+			cursor: default;
+			border-radius: 50%;
+			-webkit-transform: scale(0);
+			transition: -webkit-transform 1.4s 0.07s;
+			z-index: -5;
+		}
+
+		.spread {
+			position: absolute;
+			top: -80px;
+			left: -80px;
+			-webkit-transform-origin: 80px 80px;
+			transition: all 0.5s 0.1s;
+		}
+
+		.icon:hover {
+			/* Where all the MAGIC happens: */
+		}
+
+		.icon:hover .menu {
+			transition: -webkit-transform 0.4s 0.08s, z-index   0s  0.5s;
+			-webkit-transform: scale(1);
+			z-index: 5;
+		}
+
+		.icon:hover .spread, .icon:hover .unit {
+			transition: all 0.6s;
+		}
+
+		.icon:hover .spread:nth-child(1) {
+			transition-delay: 0.02s;
+			-webkit-transform: rotate(85deg);
+		}
+
+		.icon:hover .spread:nth-child(1) .unit {
+			transition-delay: 0.04s;
+			-webkit-transform: rotate(635deg);
+		}
+
+		.icon:hover .spread:nth-child(2) {
+			transition-delay: 0.04s;
+			-webkit-transform: rotate(125deg);
+		}
+
+		.icon:hover .spread:nth-child(2) .unit {
+			transition-delay: 0.08s;
+			-webkit-transform: rotate(595deg);
+		}
+
+		.icon:hover .spread:nth-child(3) {
+			transition-delay: 0.06s;
+			-webkit-transform: rotate(165deg);
+		}
+
+		.icon:hover .spread:nth-child(3) .unit {
+			transition-delay: 0.12s;
+			-webkit-transform: rotate(555deg);
+		}
+
+		.icon:hover .spread:nth-child(4) {
+			transition-delay: 0.08s;
+			-webkit-transform: rotate(205deg);
+		}
+
+		.icon:hover .spread:nth-child(4) .unit {
+			transition-delay: 0.16s;
+			-webkit-transform: rotate(515deg);
+		}
+
+		.icon:hover .spread:nth-child(5) {
+			transition-delay: 0.1s;
+			-webkit-transform: rotate(245deg);
+		}
+
+		.icon:hover .spread:nth-child(5) .unit {
+			transition-delay: 0.2s;
+			-webkit-transform: rotate(475deg);
+		}
+
+		.icon:hover .spread:nth-child(6) {
+			transition-delay: 0.12s;
+			-webkit-transform: rotate(285deg);
+		}
+
+		.icon:hover .spread:nth-child(6) .unit {
+			transition-delay: 0.24s;
+			-webkit-transform: rotate(435deg);
+		}
+
+		.icon:hover .spread:nth-child(7) {
+			transition-delay: 0.14s;
+			-webkit-transform: rotate(325deg);
+		}
+
+		.icon:hover .spread:nth-child(7) .unit {
+			transition-delay: 0.28s;
+			-webkit-transform: rotate(395deg);
+		}
+
+		.icon:hover .spread:nth-child(8) {
+			transition-delay: 0.16s;
+			-webkit-transform: rotate(365deg);
+		}
+
+		.icon:hover .spread:nth-child(8) .unit {
+			transition-delay: 0.32s;
+			-webkit-transform: rotate(355deg);
+		}
+
+		.icon:hover .spread:nth-child(9) {
+			transition-delay: 0.18s;
+			-webkit-transform: rotate(405deg);
+		}
+
+		.icon:hover .spread:nth-child(9) .unit {
+			transition-delay: 0.36s;
+			-webkit-transform: rotate(315deg);
+		}
+
+		/* END .icon:hover */
+		.unit {
+			position: absolute;
+			border: 1px solid rgb(242, 106, 22);
+			background: rgb(242, 174, 28);
+			font-size: 60%;
+			text-decoration: none;
+			width: 45px;
+			height: 45px;
+			line-height: 45px;
+			color: #eee;
+			border-radius: 50%;
+			transition: 0.6s;
+		}
+
+		/* Just CodePen layout stuff: */
+		body, a, ul, li {
+			margin: 0;
+			outline: 0;
+			padding: 0;
+			list-style: none;
+		}
+
+	</style>
+	<div class="icon">设置
+
+		<!-- tabs test -->
+		<style>
+/*h1 {
+  font-weight: normal;
+  font-size: 40px;
+  font-weight: normal;
+  text-transform: uppercase;
+  float: left;
+  margin: 20px 0 100px 10px;
+}
+h1 span {
+  font-size: 13px;
+  display: block;
+  padding-left: 4px;
+}*/
+.icon:hover .tabs {
+	display: block;
+}
+.tabs {
+	width: 410px;
+	display: none;
+	float: none;
+	list-style: none;
+	position: absolute;
+	margin: 80px 0 0 10px;
+	text-align: left;
+	left: -85px;
+	top: 100px;
+}
+.tabs li {
+	float: left;
+	display: block;
+}
+.tabs input[type="radio"] {
+	position: absolute;
+	top: -9999px;
+	left: -9999px;
+}
+.tabs label {
+	display: block;
+	line-height: 23px;
+	padding: 14px 9px;
+	border-radius: 2px 2px 0 0;
+	font-size: 20px;
+	font-weight: normal;
+	text-transform: uppercase;
+	background: rgba(57, 189, 173, 0.9);
+	cursor: pointer;
+	position: relative;
+	top: 4px;
+	-webkit-transition: all 0.2s ease-in-out;
+	-moz-transition: all 0.2s ease-in-out;
+	-o-transition: all 0.2s ease-in-out;
+	transition: all 0.2s ease-in-out;
+}
+.tabs label:hover {
+	background: rgba(57, 189, 173, 0.9);
+}
+.tabs .tab-content {
+	z-index: 2;
+	display: none;
+	overflow: hidden;
+	width: 100%;
+	font-size: 17px;
+	line-height: 25px;
+	padding: 25px;
+	position: absolute;
+	top: 53px;
+	left: 0;
+	background: rgba(57, 189, 173, 0.9);
+}
+.tabs [id^="tab"]:checked + label {
+	top: 0;
+	padding-top: 17px;
+	background: rgb(46, 118, 112);
+}
+.tabs [id^="tab"]:checked ~ [id^="tab-content"] {
+	display: block;
+}
+
+p.link {
+	clear: both;
+	margin: 380px 0 0 15px;
+}
+p.link a {
+	text-transform: uppercase;
+	text-decoration: none;
+	display: inline-block;
+	color: #fff;
+	padding: 5px 10px;
+	margin: 0 5px;
+	background-color: #612e76;
+	-webkit-transition: all 0.2s ease-in;
+	-moz-transition: all 0.2s ease-in;
+	-o-transition: all 0.2s ease-in;
+	transition: all 0.2s ease-in;
+}
+p.link a:hover {
+	background-color: #522764;
+}
+</style>
+<ul class="tabs">
+	<li>
+		<input type="radio" name="tabs" id="tab0" checked />
+		<label for="tab0">Test</label>
+		<div id="tab-content0" class='test tab-content'>
+			<p>
+				margin: <input id='margin' value='20'><br>
+				width: <input id='width' value='980'><br>
+				<button id='test'>测试</button><br><button id='serialize'>生成数据</button>
+				<br>
+				<button id='new_row_btn'>新增一列</button>
+				<select id='new_row'>
+					<option>411</option>
+					<option>31</option>
+				</select>
+			</p>
+		</div>
+	</li>
+	<li>
+		<input type="radio" name="tabs" id="tab1" checked />
+		<label for="tab1">Description</label>
+		<div id="tab-content1" class="tab-content">
+			<p>"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</p>
+		</div>
+	</li>
+
+	<li>
+		<input type="radio" name="tabs" id="tab2" />
+		<label for="tab2">Specification</label>
+		<div id="tab-content2" class="tab-content">
+			<p>"Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla?</p>
+		</div>
+	</li>
+</ul>
+
+
+
+<ul class="menu">
+
+	<li class="spread">
+		<a class="unit" href="#">数据</a>
+	</li>
+
+	<li class="spread">
+		<a class="unit" href="#">样式</a>
+	</li>
+
+	<li class="spread">
+		<a class="unit" href="#">js</a>
+	</li>
+
+	<li class="spread">
+		<a class="unit" href="#">还原</a>
+	</li>
+
+	<li class="spread">
+		<a class="unit" href="#">模块</a>
+	</li>
+
+	<li class="spread">
+		<a class="unit" href="#">网格</a>
+	</li>
+
+	<li class="spread">
+		<a class="unit" href="#">保存</a>
+	</li>
+
+	<li class="spread">
+		<a class="unit" href="#">回溯</a>
+	</li>
+
+	<li class="spread">
+		<a class="unit" href="#">更多</a>
+	</li>
+
+</ul>
+</div>
+<!-- menu end -->
+
+
+
+
+<div class='preview'>
+	<div class='preview-hd'><div class='r'> x </div></div>
+	<ul class='clear'>
+		<li>
+			<div class='mod mod-001'>
+				<h1>这是第一个组件</h1>
+			</div>
+		</li>
+		<li>
+			<div class='mod mod-002'>
+				<h1>这是第二个组件</h1>
+			</div>
+		</li>
+	</ul>
+	<div><button class='btnSetMod'>确定</button></div>
+</div>
+
+<div class='xpanel'>
+<!-- 		<div class='setting'>
+			<h3>设置</h3>
+			<ul>
+				<li>+模块</li>
+				<li>还原宽度</li>
+				<li>删除</li>
+			</ul>
+		</div> -->
+		<div class='resize'>
+		</div>
+	</div>
+	<div class='grid2'>
+	</div>
+	<div class='grid'>
+		<div class='row'>
+			<div class='col-411-4'><div class='mod'>col-411-4</div></div>
+			<div class='col-411-1'><div class='mod'>col-411-1</div></div>
+			<div class='col-411-1'><div class='mod'>col-411-1</div></div>
+		</div>
+		<div class='row'>
+			<div class='col-31-3'><div class='mod'>col-31-3</div></div>
+			<div class='col-31-1'><div class='mod'>col-31-1</div></div>
+			<div class='col-31-1'><div class='mod'>col-31-1</div></div>
+			<div class='col-31-3'><div class='mod'>col-31-3</div></div>
+		</div>
+	</div>
+
+
+	<script>
+
+		var MODS = {
+			'000': '<a class="set-mod">设置模块</a>',
+			'001': '<h1>这是第一个组件</h1>',
+			'002': '<h2>第二个组件</h2>'
+		}
+
+		$(document).click(function(e) {
+			window.e = e
+		})
+
+		$.fn.dragable = function() {
+			var self = this
+			$(self).dblclick(function() {
+				$(document).one('click', function(e) {
+					console.log(e.pageX, e.pageY)
+					$(self).animate({
+						left: e.screenX,
+						top: e.screenY - 100
+					}, 'fast')
+				})
+			})
+		}
+
+		$.fn.showGrid = function(grid) {
+			var rows = grid.rows
+			var html = '<h1>xxx</h1>'
+			$(this).html(genRows(rows))
+
+			function genRows(rows) {
+				var arr = []
+				for (var i = 0; i < rows.length; i++) {
+					var cols = rows[i].cols
+
+					arr.push('<div class=row>' + genCols(cols) + '</div>')
+				}
+				return arr.join('')
+			}
+
+			function genCols(cols) {
+				var arr = []
+				for (var i = 0; i < cols.length; i++) {
+					var mods = cols[i].mods
+					var cl = cols[i].class
+					arr.push('<div class=' + cl + '>' + genMods(mods) + '</div>')
+				}
+				return arr.join('')
+			}
+
+			function genMods(mods) {
+				var arr = []
+				for (var i = 0; i < mods.length; i++) {
+					var mod = MODS[mods[i].id] || '没找到'
+					mod = '<div class="mod mod-' + mods[i].id + '">' + mod + '</div>'
+					arr.push(mod)
+				}
+				return arr.join('')
+			}
+		}
+
+		var active = 'active' // should be fuck off
+		window.z = true // ..test
+		$('#test').click(function() {
+			// total relayout
+			var margin = $('#margin').val()
+			var width = $('#width').val()
+			//console.log(margin, width)
+			var css = []
+			css.push('@margin: ' + margin + 'px')
+			css.push('@width: ' + width + 'px')
+			css.push($('#css_tmpl').html())
+			css = css.join(';\n')
+			var parser = new less.Parser()
+			parser.parse(css, function(err, tree) {
+				$('#test_css').html(tree.toCSS())
+			})
+
+			if (window.z) {
+				$('[class^=col]').each(function() {
+					$(this).html('<div class="mod mod-000"><a class="set-mod">设置模块<br>' + this.className + '</a></div>' + '<div class="mod mod-000"><a class="set-mod">设置模块<br>' + this.className + '</a></div>')
+				})
+				window.z = false
+			}
+			$('.grid').data('margin', margin).data('width', width)
+		})
+
+		$('#new_row_btn').click(function() {
+			var val = $('#new_row').val()
+			alert(val)
+		})
+
+		var xpanel = $('.xpanel')
+
+		/*
+		拖动是col还是mod, 设置又是谁的?
+		mod的宽度完全来自col, 因此xpanel是在col下的
+		而xpanel的设置也是col的(还原宽度,删除,数据设置-> 一下子加很多个mod)
+		*/
+		$('.grid').delegate('[class^=col]', 'mouseover', function() {
+			var col = $(this)
+			col.css('position', 'relative')
+			col.append(xpanel)
+			xpanel.show()
+		})
+
+		$('.grid').delegate('.resize', 'mousedown', function(e) {
+			var startX = e.pageX
+			var col = $(this).parents('[class^=col]') // find the col-*
+			if (!col.attr('data-w')) {
+				// judge if size-x changed
+				col.attr('data-w', col.width())
+			}
+
+			// tell grid now is col
+			$('.grid').data('col', col).data('startX', startX)
+			console.log('333')
+
+		})
+		// grid 永远监听mousemove事件
+		// 1: resize监听
+		// 2: drag监听
+
+		$('.grid').on('mousemove', function(e) {
+
+			var col = $(this).data('col')
+			var mod = $(this).data('mod')
+			var grid = $(this)
+			//console.log(col, mod)
+			if (col) {
+				var startX = $(this).data('startX')
+				var x = e.pageX - startX
+				col.css('width', '+=' + x)
+				$(this).data('startX', e.pageX)
+			} else if (mod) {
+				var start = grid.data('start')
+				var cor = [e.pageX, e.pageY]
+				var x = cor[0] - start[0]
+				var y = cor[1] - start[1]
+				mod.style.webkitTransform = 'translate3d(' + x + 'px, ' + y + 'px, 0)'
+				grid.data('end', cor)
+				//console.log(cor[0] - start[0])
+/*				$(mod).css({
+					left: '+=' + (cor[0] - start[0]),
+					top: '+=' + (cor[1] - start[1])
+				})*/
+				// grid.data('start', cor)
+			}
+		}).mouseup(function(ev) {
+			console.log(2222)
+			$(this).data('col', false)
+			$(this).data('mod', false)
+			return false
+		})
+
+/*		$(document).on('mouseup', function(ev) {
+			// 自动撑满
+
+			///找出全部与自身同排的元素
+			//加起来,如果其和大于宽度-20, 其把最后一个元素撑满
+
+			$(document).unbind('mousemove')
+			$('.grid').unbind('mousemove')
+			if (ev.target.className !== 'resize') {
+				return
+			}
+			var col = $(ev.target).parents('[class^=col]')
+			if (col.length !== 1) {
+				return
+			}
+			var cols = col.parent().children() // get all col
+			var top = col.position().top
+			var colArr = []
+			cols.each(function() {
+				if ($(this).position().top === col.position().top) {
+					colArr.push(this)
+				}
+			})
+			var len = (colArr.length - 1) * $('.grid').data('margin')
+			for (var i = 0; i < colArr.length; i++) {
+				len += colArr[i].offsetWidth
+			}
+			var width = $('.grid').data('width')
+			if (len + 20 > width && len < width) {
+				var last = $(colArr[colArr.length - 1])
+				last.attr('data-w', last.width())
+				last.animate({width: '+=' + (width - len)})
+			}
+		})
+*/
+		// setting button
+		$('.grid').delegate('.setting h3', 'click', function() {
+			$(this).next().show()
+		})
+
+		function delegate(sel, fn) {
+			$('.grid').delegate(sel, 'click', fn)
+		}
+
+		/*
+		This should be the function of mod-000,
+		js in mod-000
+		*/
+		delegate('.set-mod', function() {
+			// need mask
+			$(this).parents('.mod').addClass(active)
+			$('.preview').show()
+		})
+
+		$('.preview .r').click(function() {
+			$('.preview').hide()
+			$('.mod-active').removeClass('mod-active')
+		})
+
+		$('.grid').delegate('.setting li', 'click', function() {
+			var index = $('.setting li').index(this)
+			console.log(index)
+			if (index == 2) {
+				// delete
+				$(this).parents('[class^=col]').remove()
+			} else if (index == 1) {
+				// return size
+				var col = $(this).parents('[class^=col]')
+				var old_w = col.attr('data-w')
+				if (old_w) {
+					// data-w is no use?
+					// style just has width
+					col.attr('style', '')
+				}
+			}
+		})
+
+		/*
+		选择mod替换mod,active的肯定是mod而不是col,因为col中可以有多个mod
+		选中后clone该mod, 再替换之
+		以后一定要加上动画,点确定,preview消失,mod变大,再收回到替换mod位置,cool!
+		*/
+
+		$('.preview').delegate('.mod', 'click', function() {
+			$('.preview .active').removeClass('active')
+			$(this).addClass('active')
+		})
+
+		$('.btnSetMod').click(function() {
+			var mod = $('.preview .active')
+			if (mod.length !== 1) {
+				return
+			}
+
+			$('.grid .' + active).replaceWith(mod.clone().removeClass('active'))
+			$('.preview').hide()
+		})
+
+
+		$(function() {
+			$('#test').click()
+			$('.icon').dragable()
+
+		})
+
+		$('#serialize').click(function() {
+			serialize()
+		})
+
+		function serialize() {
+			var grid = $('.grid')
+			var o = {}
+			o.width = grid.data('width')
+			o.margin = grid.data('margin')
+			var rows = getRows(grid.children())
+			o.rows = rows
+			console.log(JSON.stringify(o))
+			$('.grid2').showGrid(o)
+		}
+
+		function getRows(rows) {
+			var arr = []
+			rows.each(function(i, row) {
+				var obj = {}
+				obj.cols = genCols($(row).children())
+				arr.push(obj)
+			})
+			return arr
+		}
+
+		function genCols(cols) {
+			var arr = []
+			cols.each(function(i, col) {
+				var o = {}
+				col = $(col)
+				if (col.attr('data-w')) {
+					o.width = col.width()
+				}
+				o.class = col[0].className
+				o.mods = genMods(col.children('.mod')) // filter x-panel
+				arr.push(o)
+			})
+			return arr
+		}
+
+		function genMods(mods) {
+			var arr = []
+			mods.each(function(i, mod) {
+				var o = {}
+				var str = mod.className
+				o.id = str.split('mod-')[1]
+				arr.push(o)
+				//console.log(mod.className)
+			})
+			return arr
+		}
+
+
+		/* TODO
+		数据化
+		结构为一个json
+		首先是mod结构
+		mod: {
+			id: 001, // css also from id
+			data: "xxxx"
+		}
+		然后是col结构, col中包含1-n个mod, 但它有一个属性, 就是class或者width, width权重大于class
+		这里有个问题在于, 为什么不直接width? 而是要去class一个一个搞
+		原因很简单, 完全不推荐使用任何的拉升, 应该完全用css的class来定义
+		复杂是自动拉升, 如果拉升就必须变成width, 那重新拉应该缩回去嘛?
+		这个以后再改 太细节了
+		col: {
+			width: 900px,
+			mods: [mod1, mod2]
+		}
+		然后是row, row仅仅是一个数组, 没有想到会不会有其他属性, 会不会也有宽度? 不过我们还是占着位
+		row: {
+			cols: [col1, col2]
+		}
+		最后是整个
+		grid: {
+			width: 980,
+			margin: 20,
+			rows: [row1, row2]
+		}
+		row:
+		{
+			margin: 20,
+			width: 970,
+			rows: [
+				cols: {
+					width: 400px,
+					class: 'col-411-4',
+					mods: [{
+						id: 001,
+						data: "don't know yet"
+					}, {
+						id: 002,
+						data: "don't know yet"
+					}]
+
+				}]
+		}
+
+		### 新增的交互, 新增一栏, 新增一个mod
+		### mod换位置
+		*/
+
+		/*
+		还是决定用拖动的交互, 不过这完全是因为看了一个特效想用上
+		如何区分点击和拖动呢? 当然就是`使劲按`, longclick, 这个以后再说
+		一个小纠结, mod 和active共用在css中是难以选择出来的, active适合li.active这样的
+		虽然很想把mod改成article之类的, 但怎么知道其他人有没有用article
+		*/
+
+		$.fn.longclick = function(time, fn) {
+			var timer
+			var self = this
+			this.mouseup(function() {
+				clearTimeout(timer)
+				return false
+			}).mousedown(function(e) {
+				//console.log(e)
+				timer = setTimeout(function() {
+
+					fn.call(e.currentTarget, e)
+				}, time)
+				return false
+			})
+		}
+
+		$(function() {
+			$('.mod').longclick(300, function(e) {
+				console.log('click!!!!!!!')
+				var el = $(this)
+				el.css({width: el.width()})
+				el.addClass('drag active')
+				console.log(this.style.top)
+				this.style.top = this.style.top || 0
+				this.style.left = this.style.left || 0
+				$(this).mouseup(function() {
+					var end = $('.grid').data('end')
+					var start = $('.grid').data('start')
+					$(this).css({
+						left: end[0] - start[0],
+						top: end[1] - start[1],
+						webkitTransform: 'none'
+					})
+					$('.grid').data('mod', false)
+				})
+				$('.grid').data('mod', this)
+				$('.grid').data('start', [e.pageX, e.pageY])
+			})
+		})
+
+
+		// http://tympanus.net/Blueprints/SlidePushMenus/
+		// http://codepen.io/JaxoDI/pen/dxsrL
+
+	</script>
+
+</body>
+<script type='less' id='css_tmpl'>
+	@height: 400px;
+	.grid, .grid2 {
+		margin: 20px auto;
+		width: @width + @margin;
+		border: 1px solid #ccc;
+	}
+	// 31
+	.col-31-3 {
+		width: ((@width + @margin) / 4) * 3 - @margin;
+	}
+	.col-31-1 {
+		width: ((@width + @margin) / 4) - @margin;
+	}
+	// 411
+	.col-411-4, .col-411-1, .col-31-1, .col-31-3 {
+		float: left;
+		margin: 5px (@margin / 2);
+	}
+	.col-411-4 {
+		width: ((@width + @margin) / 6) * 4 - @margin;
+	}
+	.col-411-1 {
+		width: (@width + @margin) / 6 - @margin;
+	}
+	.row:after, .row:before {
+		display: table;
+		clear: both;
+		content: "";
+	}
+</script>
+<script src='../pub/less.min.js'></script>
+</html>

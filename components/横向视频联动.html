@@ -1,0 +1,241 @@
+<!doctype html>
+<html>
+<meta charset='utf-8'>
+<style>
+	* {
+		margin: 0;
+		padding: 0;
+	}
+	.box {
+		width: 980px;
+		margin: 0 auto;
+		border: 3px solid #d3d3d3;
+		padding-bottom: 10px;
+		margin-top: 6%;
+	}
+	.com-hd {
+		background-image: url(http://p3.img.cctvpic.com/photoAlbum/templet/common/DEPA1355984323907719/qingshaoZ9735_ind02_img_15.jpg);
+		width: 100%;
+		height: 74px;
+	}
+	.img-big {
+		text-align: center;
+		padding: 10px;
+	}
+	.img-small {
+		border: 3px solid #ddd;
+		margin: 4px;
+		float: left;
+		width: 120px;
+		text-align: center;
+		overflow: hidden;
+	}
+	.img-small b {
+		white-space: nowrap;
+		line-height: 1.8em;
+	}
+	.transition {
+		border-color: red !important;
+		-webkit-transition: all 0.3s ease-in-out;
+		-moz-transition: all 0.3s ease-in-out;
+		-o-transition: all 0.3s ease-in-out;
+		transition: all 0.3s ease-in-out;
+		z-index: 10;
+	}
+	.img-small img {
+		vertical-align: middle;
+		max-width: 100%;
+	}
+	.img-list {
+		width: 90%;
+		margin: 0 auto;
+		/*overflow: hidden;*/
+		height: 100%;
+		position: relative;
+	}
+	.img-list .active {
+		border-color: #459300;
+	}
+	.fix {
+		position: relative;
+		margin: 0 20px;
+		height: 127px;
+	}
+	.arrow {
+		position: absolute;
+		height: 30px;
+		width: 30px;
+		top: 0;
+		bottom: 0;
+		background: #777;
+		margin: auto;
+		line-heig   ht: 30px;
+		text-align: center;
+		font-weight: bold;
+		color: #ddd;
+		cursor: pointer;
+		z-index: 100;
+	}
+	.to-left {
+		left: 0;
+	}
+	.to-right {
+		right: 0;
+	}
+</style>
+<script src='../pub/jquery.min.js'></script>
+<body>
+	<div class='box'>
+		<div class='com'>
+
+			<div class='fix' data-widget="videolist">
+				<div class='arrow to-left'><</div>
+				<ul class='img-list'>
+					<li class='img-small' j-delegate="videoPlayList" data-albumid="220321400" data-tvid="220321400" data-vid="b8bf4f2098111f5d1242565b5c197e44" data-title="杨幂刘恺威大婚 婚礼全程视频曝光" style="color:#9E0B0F; padding-top: 0px;">
+						<a href="#" title="杨幂刘恺威大婚 婚礼全程视频曝光" >
+							<img src='http://pic0.qiyipic.com/thumb/20130502/a412171_160_90.jpg'>
+							<b>新娘落泪</b>
+						</a>
+					</li>
+
+					<li class='img-small' data-title="杨幂火速完婚 背后有原因" data-vid="33db55558275f263645301407b7939fc" data-tvid="220353600" data-albumid="220353600" j-delegate="videoPlayList">
+						<a href="#" title="杨幂火速完婚 背后有原因" >
+							<img src='http://pic9.qiyipic.com/thumb/20130219/a330230_160_90.jpg'>
+							<b>林俊杰《 因你而在</b>
+						</a>
+					</li>
+
+					<li class='img-small' data-title="刘恺威迎娶杨幂 婚礼花费超千万" data-vid="9642cfe6d9542e4d927dfd5d22c0eba5" data-tvid="220425100" data-albumid="220425100" j-delegate="videoPlayList">
+						<a href="#" title="刘恺威迎娶杨幂 婚礼花费超千万">
+							<img src='http://pic8.qiyipic.com/thumb/20130423/a403423_160_90.jpg'>
+							<b>揭秘：幂威婚礼账单近1170万</b>
+						</a>
+					</li>
+
+					<li class='img-small' data-title="亲朋：新人礼成后聚餐 场面盛大" data-vid="acdb870eb9d1ed0f06159362dd4277f8" data-tvid="220368300" data-albumid="220368300" j-delegate="videoPlayList">
+						<a href="#" title="亲朋：新人礼成后聚餐 场面盛大">
+							<img src='http://pic1.qiyipic.com/thumb/20130424/a404571_160_90.jpg'>
+							<b>亲朋：婚礼礼成后聚餐 场面盛大</b>
+						</a>
+					</li>
+
+					<li class='img-small' data-title="杨幂刘恺威巴厘岛大婚 新人跪地敬茶" data-vid="75c9c1614f4a0a32337b6af38d1eb896" data-tvid="220401800" data-albumid="220401800" j-delegate="videoPlayList">
+						<a href="#" title="杨幂刘恺威巴厘岛大婚 新人跪地敬茶">
+							<img src='http://pic1.qiyipic.com/thumb/20130424/a404571_160_90.jpg'>
+							<b>现场：新人传统跪地斟茶谢父母</b>
+						</a>
+					</li>
+
+					<li class='img-small' data-title="杨幂刘恺威巴厘岛大婚 新人跪地敬茶" data-vid="75c9c1614f4a0a32337b6af38d1eb896" data-tvid="220401800" data-albumid="220401800" j-delegate="videoPlayList">
+						<a href="#" title="杨幂刘恺威巴厘岛大婚 新人跪地敬茶">
+							<img src='http://pic5.qiyipic.com/thumb/20130502/a412165_160_90.jpg'>
+							<b>现场：新人传统跪地斟茶谢父母</b>
+						</a>
+					</li>
+
+					<li class='img-small' data-title="杨幂刘恺威巴厘岛大婚 新人跪地敬茶" data-vid="75c9c1614f4a0a32337b6af38d1eb896" data-tvid="220401800" data-albumid="220401800" j-delegate="videoPlayList">
+						<a href="#" title="杨幂刘恺威巴厘岛大婚 新人跪地敬茶">
+							<img src='http://pic5.qiyipic.com/thumb/20130502/a412165_160_90.jpg'>
+							<b>现场：新人传统跪地斟茶谢父母</b>
+						</a>
+					</li>
+
+					<li class='img-small' data-title="杨幂刘恺威巴厘岛大婚 新人跪地敬茶" data-vid="75c9c1614f4a0a32337b6af38d1eb896" data-tvid="220401800" data-albumid="220401800" j-delegate="videoPlayList">
+						<a href="#" title="杨幂刘恺威巴厘岛大婚 新人跪地敬茶">
+							<img src='http://pic5.qiyipic.com/thumb/20130502/a412165_160_90.jpg'>
+							<b>现场：新人传统跪地斟茶谢父母</b>
+						</a>
+					</li>
+
+					<li class='img-small' data-title="杨幂刘恺威巴厘岛大婚 新人跪地敬茶" data-vid="75c9c1614f4a0a32337b6af38d1eb896" data-tvid="220401800" data-albumid="220401800" j-delegate="videoPlayList">
+						<a href="#" title="杨幂刘恺威巴厘岛大婚 新人跪地敬茶">
+							<img src='http://pic5.qiyipic.com/thumb/20130502/a412165_160_90.jpg'>
+							<b>现场：新人传统跪地斟茶谢父母</b>
+						</a>
+					</li>
+				</ul>
+				<div class='arrow to-right'>></div>
+
+			</div>
+
+		</div>
+	</div>
+</body>
+<script>
+	$(function() {
+		var smallW = 126
+		var len = 12
+		var w = 120 + 2 * 3 + 2 * 4
+		$('.img-list').css({
+			width: w * 6
+		})
+		var num  = 6
+		var index = 0
+		var time = 300
+		var items = $('.img-small')/*.addClass('transition')*/
+		items.css({
+			left: '-200px'
+		})
+		items.slice(index, index + 6).each(function(i) {
+			this.style.left = w * i + 'px'
+		})
+		items.get(index - 1).style.left = -w + 'px'
+		items.get(index + 6).style.left = 6 * w + 'px'
+		var last = 0
+
+		function move(x) {
+			var now = +new Date
+			if (now - last < 300) {
+				return false
+			} else {
+				last = now
+			}
+			$('.img-list .active').removeClass('active')
+			index -= x
+			for (var i = index; i < index + 6; i++) {
+				var a = i
+				if (a > items.length - 1) {
+					a -= items.length
+				}
+				var el = items.get(a)
+				$(el).animate({
+					left: '+=' + (w - 4) * x
+				}, 300)
+			}
+			setTimeout(function() {
+				items.eq(index - 1).css({
+					left: -w + 'px'
+				}).removeClass('transition')
+				items.eq(index + 6).css({
+					left: w * 6 + 'px'
+				}).removeClass('transition')
+			})
+
+			$(items.get(index + 7)).removeClass('transition')
+			if (index >= 1) {
+				index -= items.length
+			}
+			if (index <= -items.length + 1) {
+				index += items.length
+			}
+			trigger()
+		}
+
+		function trigger(el) {
+			if (!el) {
+				el = items.get(index + 2)
+			}
+			el = $(el)
+
+			el.addClass('active')
+		}
+
+		$('.to-right').click(function() {
+			return move(1)
+		})
+		$('.to-left').click(function() {
+			return move(-1)
+		})
+	})
+</script>
+</html>

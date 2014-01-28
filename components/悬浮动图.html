@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+<head>
+	<script src='../pub/jquery.min.js'></script>
+	<meta charset='utf-8'>
+</head>
+<style>
+	* {
+		margin: 0;
+		padding: 0;
+	}
+	.box {
+		width: 980px;
+		margin: 0 auto;
+		overflow: hidden;
+		padding-top: 200px;
+	}
+	.img-list {
+		position: relative;
+		width: 100%;
+		height: 647px;
+	}
+	.img-area {
+		position: absolute;
+		cursor: crosshair;
+		overflow: hidden;
+	}
+	.area1 {
+		width:50%;
+		left: 0;
+		height: 100%;
+	}
+	.area2 {
+		right: 0;
+		height: 50%;
+		width: 50%;
+	}
+	.area3 {
+		right: 0;
+		bottom: 0;
+		height: 50%;
+		width: 50%;
+	}
+	.img-area img {
+		height: 100%;
+		width: 100%;
+		position: absolute;
+		display: none;
+		opacity: 1;
+	}
+	.img-head {
+		position: absolute;
+		top: 0;
+		width: 100%;
+		height: 40px;
+		z-index: 1000;
+		background: rgba(0, 0, 0, 0.7);
+		color: #fff;
+	}
+</style>
+<body>
+	<div class='box'>
+		<div class='img-list'>
+			<div class='img-area area1'>
+				<div class='img-head'></div>
+				<img src='http://pic1.qiyipic.com/common/20131219/9d93546890674c0cb19962f0a3beb468.jpg'>
+				<img src='http://pic0.qiyipic.com/common/20131220/98c2beabafa04b30ae828dc12705fbde.jpg'>
+			</div>
+			<div class='img-area area2'>
+				<div class='img-head'></div>
+				<img src='http://pic5.qiyipic.com/common/20131219/a0e15e0a95594586aa4b99584352138a.jpg'>
+				<img src='http://pic4.qiyipic.com/common/20131220/b264aeaa33e4447d9ecdeeb45d29af2c.jpg'>
+				<img src='http://pic0.qiyipic.com/common/lego/20140124/c29c181372ed41ad83eca8084ad95a3b.jpg'>
+			</div>
+			<div class='img-area area3'>
+				<div class='img-head'></div>
+				<img src='http://pic3.qiyipic.com/common/20131219/a271abc3219542b485acee3be3cb4af1.jpg'>
+				<img src='http://pic8.qiyipic.com/common/20131220/611598de25724a19b5dee19aa44248e9.jpg'>
+				<img src='http://pic3.qiyipic.com/common/lego/20140124/a9d6fd7a3666429f85f3b1432c15db2c.jpg'>
+			</div>
+		</div>
+	</div>
+</body>
+<script>
+$(function() {
+
+function get(sel) {
+	return $(document).find(sel)
+}
+var imgs = get('.img-area')
+//console.log(imgs)
+var fxs = ['left', 'bottom', 'right', 'top']
+imgs.data({
+	index: 0,
+	last: 0,
+	fxIndex: 0
+}).mouseenter(function() {
+	var $me = $(this)
+	var len = $me.find('img').length
+	if (len <= 1) return false
+	var index = $me.data('index')
+	var last = $me.data('last')
+	var now = +new Date
+	if (now - last < 310) return false
+	$me.find('img').eq(index).css('z-index', 100).animate(genOpt(this), 300, function() {
+		var index = $(this).parent().data('fxIndex')
+		var fx = fxs[index - 1] || fxs[index + 3]
+		$(this).css('opacity', 1).css(fx, '').hide().css({opacity: 1, 'z-index': 0})
+	}).end().eq(index + 1).show()
+	index++
+	if (index > 0) {
+		index -= len
+	}
+	$me.data({
+		index: index,
+		last: now
+	})
+	return false
+}).each(function() {
+	$(this).find('img').eq(0).show().css('z-index', 100)
+})
+
+function genOpt(el) {
+	var index = $(el).data('fxIndex')
+	var son = $(el).find('img').eq(0)
+	var arr = [son.width(), son.height(), son.width(), son.height()]
+	var opt = {
+		opacity: 0
+	}
+	opt[fxs[index]] = arr[index]
+	index++
+	if (index === 4) index = 0
+	$(el).data('fxIndex', index)
+	return opt
+}
+
+})
+</script>
+</html>

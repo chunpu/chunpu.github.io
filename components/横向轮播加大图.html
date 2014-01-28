@@ -1,0 +1,194 @@
+<!doctype html>
+<html>
+<style>
+	* {
+		margin: 0;
+		padding: 0;
+	}
+	.box1 {
+		width: 980px;
+		margin: 0 auto;
+		border: 3px solid #d3d3d3;
+		padding-bottom: 10px;
+	}
+	.com-hd {
+		background-image: url(http://p3.img.cctvpic.com/photoAlbum/templet/common/DEPA1355984323907719/qingshaoZ9735_ind02_img_15.jpg);
+		width: 100%;
+		height: 74px;
+	}
+	.img-big {
+		text-align: center;
+		padding: 10px;
+	}
+	.img-small {
+		border: 3px solid #ddd;
+		margin: 4px;
+		position: absolute;
+		width: 120px;
+	}
+	.transition {
+		-webkit-transition: all 0.3s ease-in-out;
+		-moz-transition: all 0.3s ease-in-out;
+		-o-transition: all 0.3s ease-in-out;
+		transition: all 0.3s ease-in-out;
+	}
+	.img-small img {
+		vertical-align: middle;
+	}
+	.img-list {
+		width: 90%;
+		margin: 0 auto;
+		overflow: hidden;
+		height: 100%;
+		position: relative;
+	}
+	.img-list .active {
+		border-color: #459300;
+	}
+	.fix {
+		position: relative;
+		margin: 0 20px;
+		height: 100px;
+	}
+	.arrow {
+		position: absolute;
+		height: 30px;
+		width: 30px;
+		top: 0;
+		bottom: 0;
+		background: #777;
+		margin: auto;
+		line-height: 30px;
+		text-align: center;
+		font-weight: bold;
+		color: #ddd;
+		cursor: pointer;
+	}
+	.to-left {
+		left: 0;
+	}
+	.to-right {
+		right: 0;
+	}
+</style>
+<script src='../pub/jquery.min.js'></script>
+<body>
+	<div class='box1'>
+		<div class='com'>
+			<div class='com-hd'>
+			</div>
+			<div class='img-big'>
+				<img src='http://p3.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/17/1389952838190_599.jpg'>
+			</div>
+			<div class='fix'>
+				<div class='arrow to-left'><</div>
+				<div class='img-list'>
+					<div class='img-small 1'>
+						<img src='http://p1.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/22/1390362857166_360.jpg'>
+					</div>
+					<div class='img-small 2'>
+						<img src='http://p4.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/22/1390363037046_592.jpg'>
+					</div>
+					<div class='img-small 3'>
+						<img src='http://p3.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/22/1390363207154_597.jpg'>
+					</div>
+					<div class='img-small 4'>
+						<img src='http://p4.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/22/1390363476980_136.jpg'>
+					</div>
+					<div class='img-small 5'>
+						<img src='http://p1.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/22/1390363723071_330.jpg'>
+					</div>
+					<div class='img-small 6'>
+						<img src='http://p2.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/17/1389952844298_537.jpg'>
+					</div>
+					<div class='img-small 7'>
+						<img src='http://p2.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/17/1389952844298_537.jpg'>
+					</div>
+					<div class='img-small 8'>
+						<img src='http://p2.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/17/1389952844298_537.jpg'>
+					</div>
+
+					<div class='img-small 9'>
+						<img src='http://p2.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/17/1389952844298_537.jpg'>
+					</div>
+				</div>
+				<div class='arrow to-right'>></div>
+			</div>
+		</div>
+	</div>
+</body>
+<script>
+	$(function() {
+		var smallW = 126
+		var len = 12
+		var w = 120 + 2 * 3 + 2 * 4
+		$('.img-list').css({
+			width: w * 6
+		})
+		var index = 0
+		var items = $('.img-small').addClass('transition')
+		items.css({
+			left: '-200px'
+		})
+		items.slice(index, index + 6).each(function(i) {
+			this.style.left = w * i + 'px'
+		})
+		items.get(index - 1).style.left = -w + 'px'
+		items.get(index + 6).style.left = 6 * w + 'px'
+		var last = Date.now()
+
+		function move(x) {
+			var now = Date.now()
+			if (now - last < 300) {
+				return false
+			} else {
+				last = now
+			}
+			$('.img-list .active').removeClass('active')
+			index -= x
+			for (var i = index; i < index + 6; i++) {
+				var a = i
+				if (a > items.length - 1) {
+					a -= items.length
+				}
+				var el = items.get(a)
+				$(el).addClass('transition')
+				el.style.left = (el.offsetLeft - 4 + w * x) + 'px'
+			}
+			$(items.get(index - 1)).css({
+				left: -w + 'px'
+			})
+			$(items.get(index + 6)).css({
+				left: w * 6 + 'px'
+			})
+			$(items.get(index + 7)).removeClass('transition')
+			if (index >= 1) {
+				index -= items.length
+			}
+			if (index <= -items.length + 1) {
+				index += items.length
+			}
+			trigger()
+		}
+
+		function trigger(el) {
+			if (!el) {
+				el = items.get(index + 2)
+			}
+			el = $(el)
+			var src = el.find('img')[0].src
+/*			var bigImg = $('.img-big img').attr({
+				src: src
+			})*/
+			el.addClass('active')
+		}
+
+		$('.to-right').click(function() {
+			return move(1)
+		})
+		$('.to-left').click(function() {
+			return move(-1)
+		})
+	})
+</script>
+</html>
