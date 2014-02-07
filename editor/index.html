@@ -6,26 +6,38 @@
 	<script src='./ace2.js'></script>
 	<script src='../pub/jquery.min.js'></script>
 </head>
-<style>
+<style id='resetCSS'>
 	* {
 		margin: 0;
 		padding: 0;
-		box-sizing: border-box;
 	}
-	body {
-		height: 100%;
-	}
-	textarea {
-		width: 100%;
-		height: 300px;
-	}
+	::-webkit-scrollbar-corner{background-color:transparent;}
+	::-webkit-scrollbar-button{width:0;height:0;display:none; }
+	::-webkit-scrollbar-thumb{width:7px; background-color: rgba(111, 111, 111, 0.4); border-radius:7px; }
+	::-webkit-scrollbar{width:7px;height:7px;}
+	::-webkit-scrollbar-track{width:15px;}
+	::-webkit-scrollbar:hover{background-color:transparent;}
+</style>
+<style>
 	.edit-area {
 		position: absolute;
 		left: 0;
 		top: 0;
 		height: 100%;
 		width: 40%;
-		background: #ccc;
+		background: linear-gradient(45deg, #1d1f20, #2f3031) !important;
+		bottom: 0;
+		font-family: "Lucida Sans Unicode", Tahoma, sans-serif;
+	}
+	div.ace-monokai {
+		background: linear-gradient(45deg, #1d1f20, #2f3031);
+	}
+	div.ace-monokai .ace_gutter {
+		background: #2f3031;
+		color: #555;
+	}
+	.ace_gutter-cell {
+		padding-left: 5px !important;
 	}
 	.top-bar h2 {
 		color: #999;
@@ -36,23 +48,46 @@
 		-webkit-transition: padding 0.2s;
 		-o-transition: padding 0.2s;
 		transition: padding 0.2s;
+		font-weight: normal;
+		font-size: 16px;
+		padding-top: 3px;
+		cursor: pointer;
 	}
 	.top-bar {
+		border-top: 1px solid #3d3d3d;
 		position: relative;
-		padding: 5px 20px;
-		border-bottom: 3px solid #111
+		padding: 0 20px;
+		height: 27px;
+	}
+	.top-bar:after {
+		content: "";
+		position: absolute;
+		top: 100%;
+		left: 0;
+		height: 5px;
+		width: 100%;
+		z-index: 100;
+		background: -webkit-linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0));
+		background: -o-linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0));
+		background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0));
 	}
 	.edit-area > div {
 		height: 33.3%;
 		position: relative;
-		background: #1d1f20;
 		background: -webkit-linear-gradient(135deg, #1d1f20, #2f3031) !important;
 		background: -o-linear-gradient(45deg, #1d1f20, #2f3031) !important;
 		background: linear-gradient(45deg, #1d1f20, #2f3031) !important;
+		-webkit-transition: height 0.4s ease, top 0.4s ease;
+		-o-transition: height 0.4s ease, top 0.4s ease;
+		transition: height 0.4s ease, top 0.4s ease;
+	}
+	.editor-fold {
+		height: 29px !important;
+		overflow: hidden;
 	}
 	.editor {
 		position: relative;
-		height: calc(100% - 30px);
+		height: calc(100% - 29px);
 	}
 	.preview {
 		position: absolute;
@@ -63,6 +98,8 @@
 	}
 	.preview > .box {
 		margin-left: 16px;
+		overflow: auto;
+		height: 100%;
 	}
 	.resize {
 		position: absolute;
@@ -71,17 +108,18 @@
 		width: 14px;
 		cursor: col-resize;
 		left: 0;
-		background: -webkit-linear-gradient(left, #505050, #383838);
+		background: #505050; /* Old browsers */
+		background: -moz-linear-gradient(left,  #505050 0%, #383838 100%); /* FF3.6+ */
+		background: -webkit-gradient(linear, left top, right top, color-stop(0%,#505050), color-stop(100%,#383838)); /* Chrome,Safari4+ */
+		background: -webkit-linear-gradient(left,  #505050 0%,#383838 100%); /* Chrome10+,Safari5.1+ */
+		background: -o-linear-gradient(left,  #505050 0%,#383838 100%); /* Opera 11.10+ */
+		background: -ms-linear-gradient(left,  #505050 0%,#383838 100%); /* IE10+ */
+		background: linear-gradient(to right,  #505050 0%,#383838 100%); /* W3C */
+		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#505050', endColorstr='#383838',GradientType=1 ); /* IE6-9 */
 		border-left: 1px solid black;
 		border-right: 1px solid black;
 		box-shadow: inset 0 1px 0 #6e6e6e,0 2px 2px rgba(0,0,0,0.4);
 	}
-	::-webkit-scrollbar-corner{background-color:transparent;}
-	::-webkit-scrollbar-button{width:0;height:0;display:none; }
-	::-webkit-scrollbar-thumb{width:7px; background-color:#666; border-radius:7px; }
-	::-webkit-scrollbar{width:7px;height:7px;}
-	::-webkit-scrollbar-track{width:15px;}
-	::-webkit-scrollbar:hover{background-color:transparent;}
 </style>
 <body>
 	<div class='edit-area'>
@@ -155,9 +193,9 @@
 	})
 
 	function initValue() {
-		htmlEditor.setValue(localStorage.html)
-		cssEditor.setValue(localStorage.css)
-		jsEditor.setValue(localStorage.js)
+		htmlEditor.setValue(localStorage.html, -1)
+		cssEditor.setValue(localStorage.css, -1)
+		jsEditor.setValue(localStorage.js, -1)
 		refreshView()
 	}
 
@@ -181,6 +219,41 @@
 				refreshView()
 				return false
 			}
+		})
+		$('.resize').mousedown(function(ev) {
+			var startX = ev.pageX
+			var preview = $('.preview')
+			var editor = $('.edit-area')
+			console.log(preview[0].style.width)
+			$(document).mousemove(function(ev2) {
+				var dx = ev2.pageX - startX
+				preview.css({
+					width: '-=' + dx
+				})
+				editor.css({
+					width: '+=' + dx
+				})
+				startX = ev2.pageX
+			}).mouseup(function() {
+				$(this).unbind('mousemove')
+				var bodyWidth = $(document.body).width()
+				editor.css('width', editor.width() / bodyWidth * 100 + '%')
+				preview.css('width', preview.width() / bodyWidth * 100 + '%')
+				// fuck ace shit scroll
+				var evt = document.createEvent('UIEvent');
+				evt.initUIEvent('resize', false, false, window, 1);
+				window.dispatchEvent(evt)
+				return false
+			})
+		})
+		$('.edit-area .top-bar h2').click(function() {
+			var editor = $(this).parents('.edit-area > div')
+			editor.toggleClass('editor-fold')
+			var editors = $('.edit-area > div').not('.editor-fold')
+			var len = editors.length
+			editors.css({
+				height: 'calc((100% - ' + (3 - len) * 29 + 'px) / ' + len + ')'
+			})
 		})
 	}
 
