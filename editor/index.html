@@ -11,6 +11,9 @@
 		margin: 0;
 		padding: 0;
 	}
+	ul {
+		list-style: none;
+	}
 	::-webkit-scrollbar-corner{background-color:transparent;}
 	::-webkit-scrollbar-button{width:0;height:0;display:none; }
 	::-webkit-scrollbar-thumb{width:7px; background-color: rgba(111, 111, 111, 0.4); border-radius:7px; }
@@ -39,7 +42,7 @@
 	.ace_gutter-cell {
 		padding-left: 5px !important;
 	}
-	.top-bar h2 {
+	.top-bar h2, .top-bar h3 {
 		color: #999;
 		margin: 0;
 		font-size: 15px;
@@ -120,12 +123,89 @@
 		border-right: 1px solid black;
 		box-shadow: inset 0 1px 0 #6e6e6e,0 2px 2px rgba(0,0,0,0.4);
 	}
+	.dialog {
+		min-height: 300px;
+		width: 300px;
+		background: #ddd;
+		position: absolute;
+		top: 50%;
+		margin-top: -150px;
+		margin-left: -150px;
+		left: 50%;
+		z-index: 1000;
+		display: none;
+	}
+	.dialog:hover {
+		display: block;
+		opacity: 1;
+	}
+	.dialog-head {
+		height: 40px;
+		line-height: 40px;
+		background: #333;
+		color: #fff;
+	}
+	.dialog-body {
+
+	}
+	.dialog ul {
+		/*border-top: 1px solid #ccc;*/
+	}
+	.dialog-body li {
+		height: 40px;
+		line-height: 40px;
+		border-bottom: 1px solid #ccc;
+		cursor: pointer;
+		padding: 5px;
+	}
+	.dialog-body li.active {
+		background: #777;
+		color: #fff;
+	}
+	.dialog-body li:hover {
+		background: #aaa;
+		color: #fff;
+	}
+	.dialog-body li.add {
+		color: orange;
+	}
+	.close {
+		float: right;
+		cursor: pointer;
+		text-align: center;
+		width: 40px;
+		background: #555;
+		font-family: consolas;
+
+	}
+	.dialog .btn {
+		margin: 2px 6px;
+		border: 1px solid #bbb;
+		padding: 2px;
+		cursor: pointer;
+	}
 </style>
+<script type='tmpl' id='dialogList'>
+ul
+  each page, i in pages
+    li
+      span.name= page.name
+  li.add new
+</script>
 <body>
+	<div class='dialog'>
+		<div class='dialog-head'>
+			<div class='close'>x</div>
+			<span class='btn rename'>RENAME</span><span class='btn delete'>DELETE</span>
+		</div>
+		<div class='dialog-body'>
+		</div>
+	</div>
 	<div class='edit-area'>
 		<div>
 			<div class='top-bar'>
 				<h2>JADE</h2>
+				<h3 style='float: right;' class='showDialog'>+</h3>
 			</div>
 			<div id='html-edit' class='editor'>
 			</div>
@@ -194,49 +274,57 @@
 
 	function initValue() {
 		if (window.localStorage) {
-			delete localStorage.pages
+			// delete localStorage.pages
 			if (!localStorage.pages || !localStorage.curPage) {
-				var pages = []
-				var defaultPage = {
+				var _pages = []
+				var defaultPages = [{
+					html: 'h1 hello',
+					css: 'h1 {color: red}',
+					name: 'demo1'
+				},
+				{
 					html: '#letter E\n#animation\n  .machine\n    .lid\n    .groundsHolder\n    .steamer\n    .status\n      .on\n      .off\n    .verticalStructure\n    .head\n    .base\n    .spout\n    .back\n  .cup\n  .kettle\n    .spout\n    .lid\n    .handle\n  .kettlecontents\n    div\n  .grounds\n    .contents\n      div\n    .label\n      span C\n  .filter\n    .espresso\n    .spigot\n    .handle',
-
 					css: '#letter {\n    font-size: 120px;\n    font-family: Helvetica;\n    font-weight: Bold;\n    color: rgba(18,22,26,0.7);\n    width: 120px;\n    height: 120px;\n    text-align: center;\n    vertical-align: middle;\n    line-height: 120px;\n    position: absolute;\n    top: 50%;\n    left: 50%;\n    margin-top: -60px;\n    margin-left: -60px;\n    z-index: -1;\n}\n\n#description {\n    position: fixed;\n    bottom: 10px;\n    width: 100%;\n    z-index: 100;\n    font-family: Helvetica;\n    font-weight: 200;\n    color: rgba(18,22,26,0.7);\n    text-align: center;\n    font-size: 11px;\n    letter-spacing: 1px;\n}\n\n#animation {\n    position: absolute;\n    top: 50%;\n    left: 50%;\n    margin-top: 10px;\n}\n\n.filter {\n    animation: filter 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n	-webkit-animation: filter 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n    width: 30px;\n    height: 20px;\n    border-radius: 5px;\n    border-bottom-left-radius: 30px;\n    border-bottom-right-radius: 30px;\n    background-color: rgba(218,216,212,1);\n    position: absolute;\n    top: 50%;\n    left: 50%;\n    margin-top:30px;\n    margin-left: 60px;\n    z-index: 1;\n}\n\n.filter:after {\n    content:"";\n    background-color: rgba(60,56,52,1);\n    width: 65px;\n    height: 10px;\n    border-radius: 10px;\n    border-bottom-left-radius: 0;\n    position: absolute;\n    margin-left: 26px;\n    margin-top: 3px;\n    z-index: -10;\n}\n\n.filter .espresso {\n    background-color: rgba(60,56,52,0.8);\n    animation: espresso 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n	-webkit-animation: espresso 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n    position: absolute;\n    width: 3px;\n    height: 18px;\n    top: 23px;\n    left: 13px;\n}\n\n.filter .spigot {\n    position: absolute;\n    width: 5px;\n    height: 6px;\n    background-color: rgba(60,56,52,1);\n    margin-left: 12px;\n    margin-top: 18px;\n    z-index: -1;\n}\n\n.grounds {\n    width: 50px;\n    height: 96px;\n    position: absolute;\n    top: 50%;\n    left: 50%;\n    margin-left: 180px;\n    margin-top: -45px;\n    background-color: rgba(144,255,205,1);\n    border-top: 4px solid rgba(60,56,52,0.6);\n    border-radius: 3px;\n    animation: grounds 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n	-webkit-animation: grounds 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n}\n\n.grounds .contents {\n    width: 10px;\n    height: 40px;\n    margin-top: -43px;\n    margin-left: 10px;\n    overflow: hidden;\n    position: absolute;\n    animation: groundsPour 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n	-webkit-animation: groundsPour 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n}\n\n.grounds .contents div {\n    position: absolute;\n    animation: groundsPourGrounds 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n	-webkit-animation: groundsPourGrounds 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n    width: 40px;\n    height: 20px;\n    bottom: 0;\n    right: 0;\n    margin-left: 5px;\n    border-top: 5px solid rgba(60,56,52,1);\n    border-right: 5px solid rgba(60,56,52,1);\n    border-top-right-radius: 20px;\n    -webkit-transform: rotate(10deg);\n    -moz-transform: rotate(10deg);\n    -ms-transform: rotate(10deg);\n    -o-transform: rotate(10deg);\n    transform: rotate(10deg);\n}\n\n.grounds .label {\n    width: 30px;\n    height: 30px;\n    position: absolute;\n    top: 40%;\n    left: 50%;\n    margin-left: -15px;\n    margin-top: -15px;\n    background-color: rgba(255,255,255,0.9);\n    border-radius: 10px;\n    border-top-left-radius: 0;\n    border-bottom-right-radius: 0;\n    line-height: 30px;\n    text-align: center;\n    -webkit-transform: rotate(45deg);\n    -moz-transform: rotate(45deg);\n    -ms-transform: rotate(45deg);\n    -o-transform: rotate(45deg);\n    transform: rotate(45deg);\n}\n\n.grounds .label span {\n    -webkit-transform: rotate(-45deg);\n    -moz-transform: rotate(-45deg);\n    -ms-transform: rotate(-45deg);\n    -o-transform: rotate(-45deg);\n    transform: rotate(-45deg);\n    color: rgba(60,56,52,0.6);\n    margin-left: -5px;\n    font-family: Courier;\n    position: absolute;\n}\n\n.kettle {\n    position: absolute;\n    animation: kettle 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n	-webkit-animation: kettle 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n    left: 50%;\n    top: 50%;\n    margin-top: -45px;\n    margin-left: 60px;\n    width: 80px;\n    height: 60px;\n}\n\n.kettlecontents {\n    animation: waterPour 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n	-webkit-animation: waterPour 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n    z-index: -1;\n    width: 60px;\n    height: 60px;\n    overflow: hidden;\n    position: absolute;\n    margin-left: -13px;\n    margin-top: -135px;\n    top: 50%;\n    left: 50%;\n}\n\n.kettlecontents div {\n    position: absolute;\n    right: 0;\n    top: 5px;\n    width: 50px;\n    height: 50px;\n    animation: water 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n	-webkit-animation: water 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n    border-top: 10px solid rgba(2,125,255,0.7);\n    border-left: 10px solid rgba(2,125,255,0.7);\n    border-top-left-radius: 50px;\n    z-index: -1;\n}\n\n.kettle:before {\n    content:"";\n    position: absolute;\n    left: 0%;\n    top: 0%;\n    width: 80px;\n    height: 60px;\n    border-top-right-radius: 40px;\n    border-top-left-radius: 40px;\n    border-bottom-right-radius: 5px;\n    border-bottom-left-radius: 5px;\n    background-color: rgba(218,216,212,1);\n    border-bottom: 5px solid rgba(60,56,52,1);\n}\n\n.kettle .spout {\n    width: 12px;\n    border-bottom: 30px solid rgba(218,216,212,1);\n    border-right: 5px solid transparent;\n    border-left: 5px solid transparent;\n    position: absolute;\n    -webkit-transform: rotate(-45deg);\n    -moz-transform: rotate(-45deg);\n    -ms-transform: rotate(-45deg);\n    -o-transform: rotate(-45deg);\n    transform: rotate(-45deg);\n    margin-top: -5px;\n    margin-left: -5px;\n}\n\n.kettle .handle {\n    width: 40px;\n    height: 40px;\n    position: absolute;\n    border-radius: 40px;\n    border: 8px solid rgba(60,56,52,1);\n    z-index: -1;\n    margin-left: 45px;\n    margin-top:-5px;\n}\n\n.kettle .lid {\n    position: absolute;\n    width: 10px;\n    height: 10px;\n    border-radius: 10px;\n    background-color: rgba(60,56,52,1);\n    left: 35px;\n    top: -6px;\n    z-index: -1;\n}\n\n.cup {\n    width: 25px;\n    height: 20px;\n    background-color: rgba(255,74,83,1);\n    border-bottom-left-radius: 6px;\n    border-bottom-right-radius: 6px;\n    position: absolute;\n    top: 50%;\n    left: 50%;\n    margin-top: 25px;\n    margin-left: -12px;\n}\n\n.machine {\n    position: absolute;\n    top: 50%;\n    left: 50%;\n    width: 125px;\n    height: 160px;\n    margin-top: -80px;\n    margin-left: -200px;\n    animation: machineBody 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n	-webkit-animation: machineBody 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n}\n\n.machine .base {\n    width: 100%;\n    position: absolute;\n    bottom: 0;\n    left: 0;\n    height: 25px;\n    background-color: rgba(60,56,52,1);\n    border-top: 10px solid rgba(218,216,212,1);\n    border-bottom-right-radius: 15px;\n    border-bottom-left-radius: 15px;\n}\n\n.machine .status {\n    position: absolute;\n    top: 23px;\n    left: 18px;\n    z-index: 10;\n}\n\n.machine .status div {\n    width: 5px;\n    height: 5px;\n    border-radius: 5px;\n    margin-bottom: 3px;\n}\n\n.machine .status .on {\n    background-color: rgba(134,255,195,1);\n    animation: greenlight 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n	-webkit-animation: greenlight 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n}\n\n.machine .status .off {\n    background-color: rgba(255,74,83,1);\n    animation: redlight 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n	-webkit-animation: redlight 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n}\n\n.machine .verticalStructure {\n    position: absolute;\n    bottom: 25px;\n    border-left: 20px solid rgba(60,56,52,1);\n    border-top: 10px solid rgba(60,56,52,1);\n    width: calc(100% - 20px);\n    height: 80px;\n    z-index: 1;\n}\n\n.machine .head {\n    position: absolute;\n    background-color: rgba(218,216,212,1);\n    border-top: 10px solid rgba(60,56,52,1);\n    width: 100%;\n    height: 30px;\n    bottom: 0;\n    margin-bottom: 115px;\n    border-top-right-radius: 10px;\n    border-top-left-radius: 10px;\n}\n\n.machine .lid {\n    position: absolute;\n    top:0;\n    left: 50%;\n    width: 60px;\n    height: 10px;\n    border-top-right-radius: 10px;\n    border-top-left-radius: 10px;\n    background-color: rgba(60,56,52,1);\n    margin-top: 0px;\n    margin-left: -30px;\n    -webkit-transform-origin: 2px center;\n    transform-origin: 2px center;\n    animation: machineLid 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n	-webkit-animation: machineLid 8s cubic-bezier(.48,-0.33,.55,1.31) 0s infinite normal none;\n}\n\n.machine .steamer {\n    position: absolute;\n    width: 60px;\n    height: 15px;\n    border-right: 5px solid rgba(218,216,212,1);\n    border-top: 5px solid rgba(218,216,212,1);\n    border-top-right-radius: 10px;\n    margin-top: 30px;\n    margin-left: 90px;\n}\n\n.machine .back {\n    width: 40px;\n    height: 40px;\n    border-radius: 50px;\n    position: absolute;\n    background-color: rgba(60,56,52,1);\n    margin-top: 26px;\n    margin-left: -20px;\n    z-index: -1;\n}\n\n.machine .spout {\n    width: 40px;\n    position: absolute;\n    border-top: 10px solid rgba(60,56,52,1);\n    border-right: 10px solid transparent;\n    border-left: 10px solid transparent;\n    margin-top: 55px;\n    margin-left: 32px;\n}\n\n.machine .steamer:after {\n    content: ".";\n    width: 20px;\n    height: 25px;\n    border-top-right-radius: 15px;\n    border-top-left-radius: 15px;\n    background-color: rgba(60,56,52,1);\n    margin-left: 53px;\n    margin-top: 5px;\n    position: absolute;\n    -webkit-transform: scale( 0.5 , 1 );\n    -moz-transform: scale( 0.5 , 1 );\n    -ms-transform: scale( 0.5 , 1 );\n    -o-transform: scale( 0.5 , 1 );\n    transform: scale( 0.5 , 1 );\n}\n\n@keyframes kettle {\n	100% { } \n	18% { -webkit-transform: translate( 0px , -120px ) rotate(0deg); -moz-transform: translate( 0px , -120px ) rotate(0deg); -ms-transform: translate( 0px , -120px ) rotate(0deg); -o-transform: translate( 0px , -120px ) rotate(0deg); transform: translate( 0px , -120px ) rotate(0deg);} \n	90% { -webkit-transform: rotate(0deg) translate( 0px , 0px ); -moz-transform: rotate(0deg) translate( 0px , 0px ); -ms-transform: rotate(0deg) translate( 0px , 0px ); -o-transform: rotate(0deg) translate( 0px , 0px ); transform: rotate(0deg) translate( 0px , 0px );} \n	86% { -webkit-transform: translate( 0px , -120px ) rotate(0deg); -moz-transform: translate( 0px , -120px ) rotate(0deg); -ms-transform: translate( 0px , -120px ) rotate(0deg); -o-transform: translate( 0px , -120px ) rotate(0deg); transform: translate( 0px , -120px ) rotate(0deg);} \n	41% { -webkit-transform: translate( 0px , -120px ) rotate(0deg); -moz-transform: translate( 0px , -120px ) rotate(0deg); -ms-transform: translate( 0px , -120px ) rotate(0deg); -o-transform: translate( 0px , -120px ) rotate(0deg); transform: translate( 0px , -120px ) rotate(0deg);} \n	14% { -webkit-transform: rotate(0deg) translate( 0px , 0px ); -moz-transform: rotate(0deg) translate( 0px , 0px ); -ms-transform: rotate(0deg) translate( 0px , 0px ); -o-transform: rotate(0deg) translate( 0px , 0px ); transform: rotate(0deg) translate( 0px , 0px );} \n	37% { -webkit-transform: translate( 0px , -120px ) rotate(-45deg); -moz-transform: translate( 0px , -120px ) rotate(-45deg); -ms-transform: translate( 0px , -120px ) rotate(-45deg); -o-transform: translate( 0px , -120px ) rotate(-45deg); transform: translate( 0px , -120px ) rotate(-45deg);} \n	22% { -webkit-transform: translate( 0px , -120px ) rotate(-45deg); -moz-transform: translate( 0px , -120px ) rotate(-45deg); -ms-transform: translate( 0px , -120px ) rotate(-45deg); -o-transform: translate( 0px , -120px ) rotate(-45deg); transform: translate( 0px , -120px ) rotate(-45deg);} \n	0% { -webkit-transform: rotate(0deg) translate( 0px , 0px ); -moz-transform: rotate(0deg) translate( 0px , 0px ); -ms-transform: rotate(0deg) translate( 0px , 0px ); -o-transform: rotate(0deg) translate( 0px , 0px ); transform: rotate(0deg) translate( 0px , 0px );} \n}\n\n@-webkit-keyframes kettle {\n	100% { } \n	18% { -webkit-transform: translate( 0px , -120px ) rotate(0deg); -moz-transform: translate( 0px , -120px ) rotate(0deg); -ms-transform: translate( 0px , -120px ) rotate(0deg); -o-transform: translate( 0px , -120px ) rotate(0deg); transform: translate( 0px , -120px ) rotate(0deg);} \n	90% { -webkit-transform: rotate(0deg) translate( 0px , 0px ); -moz-transform: rotate(0deg) translate( 0px , 0px ); -ms-transform: rotate(0deg) translate( 0px , 0px ); -o-transform: rotate(0deg) translate( 0px , 0px ); transform: rotate(0deg) translate( 0px , 0px );} \n	86% { -webkit-transform: translate( 0px , -120px ) rotate(0deg); -moz-transform: translate( 0px , -120px ) rotate(0deg); -ms-transform: translate( 0px , -120px ) rotate(0deg); -o-transform: translate( 0px , -120px ) rotate(0deg); transform: translate( 0px , -120px ) rotate(0deg);} \n	41% { -webkit-transform: translate( 0px , -120px ) rotate(0deg); -moz-transform: translate( 0px , -120px ) rotate(0deg); -ms-transform: translate( 0px , -120px ) rotate(0deg); -o-transform: translate( 0px , -120px ) rotate(0deg); transform: translate( 0px , -120px ) rotate(0deg);} \n	14% { -webkit-transform: rotate(0deg) translate( 0px , 0px ); -moz-transform: rotate(0deg) translate( 0px , 0px ); -ms-transform: rotate(0deg) translate( 0px , 0px ); -o-transform: rotate(0deg) translate( 0px , 0px ); transform: rotate(0deg) translate( 0px , 0px );} \n	37% { -webkit-transform: translate( 0px , -120px ) rotate(-45deg); -moz-transform: translate( 0px , -120px ) rotate(-45deg); -ms-transform: translate( 0px , -120px ) rotate(-45deg); -o-transform: translate( 0px , -120px ) rotate(-45deg); transform: translate( 0px , -120px ) rotate(-45deg);} \n	22% { -webkit-transform: translate( 0px , -120px ) rotate(-45deg); -moz-transform: translate( 0px , -120px ) rotate(-45deg); -ms-transform: translate( 0px , -120px ) rotate(-45deg); -o-transform: translate( 0px , -120px ) rotate(-45deg); transform: translate( 0px , -120px ) rotate(-45deg);} \n	0% { -webkit-transform: rotate(0deg) translate( 0px , 0px ); -moz-transform: rotate(0deg) translate( 0px , 0px ); -ms-transform: rotate(0deg) translate( 0px , 0px ); -o-transform: rotate(0deg) translate( 0px , 0px ); transform: rotate(0deg) translate( 0px , 0px );} \n}\n\n@keyframes machineBody {\n	100% { margin-left: -200px;} \n	90% { margin-left: -200px;} \n	86% { margin-left: -62px;} \n	18% { margin-left: -62px;} \n	14% { margin-left: -200px;} \n	0% { margin-left: -200px;} \n}\n\n@-webkit-keyframes machineBody {\n	100% { margin-left: -200px;} \n	90% { margin-left: -200px;} \n	86% { margin-left: -62px;} \n	18% { margin-left: -62px;} \n	14% { margin-left: -200px;} \n	0% { margin-left: -200px;} \n}\n\n@keyframes machineLid {\n	100% { -webkit-transform: rotate(0deg); -moz-transform: rotate(0deg); -ms-transform: rotate(0deg); -o-transform: rotate(0deg); transform: rotate(0deg);} \n	43% { -webkit-transform: rotate(0deg); -moz-transform: rotate(0deg); -ms-transform: rotate(0deg); -o-transform: rotate(0deg); transform: rotate(0deg);} \n	39% { -webkit-transform: rotate(-105deg); -moz-transform: rotate(-105deg); -ms-transform: rotate(-105deg); -o-transform: rotate(-105deg); transform: rotate(-105deg);} \n	0% { -webkit-transform: rotate(0deg); -moz-transform: rotate(0deg); -ms-transform: rotate(0deg); -o-transform: rotate(0deg); transform: rotate(0deg);} \n	18% { -webkit-transform: rotate(-105deg); -moz-transform: rotate(-105deg); -ms-transform: rotate(-105deg); -o-transform: rotate(-105deg); transform: rotate(-105deg);} \n	14% { -webkit-transform: rotate(0deg); -moz-transform: rotate(0deg); -ms-transform: rotate(0deg); -o-transform: rotate(0deg); transform: rotate(0deg);} \n}\n\n@-webkit-keyframes machineLid {\n	100% { -webkit-transform: rotate(0deg); -moz-transform: rotate(0deg); -ms-transform: rotate(0deg); -o-transform: rotate(0deg); transform: rotate(0deg);} \n	43% { -webkit-transform: rotate(0deg); -moz-transform: rotate(0deg); -ms-transform: rotate(0deg); -o-transform: rotate(0deg); transform: rotate(0deg);} \n	39% { -webkit-transform: rotate(-105deg); -moz-transform: rotate(-105deg); -ms-transform: rotate(-105deg); -o-transform: rotate(-105deg); transform: rotate(-105deg);} \n	0% { -webkit-transform: rotate(0deg); -moz-transform: rotate(0deg); -ms-transform: rotate(0deg); -o-transform: rotate(0deg); transform: rotate(0deg);} \n	18% { -webkit-transform: rotate(-105deg); -moz-transform: rotate(-105deg); -ms-transform: rotate(-105deg); -o-transform: rotate(-105deg); transform: rotate(-105deg);} \n	14% { -webkit-transform: rotate(0deg); -moz-transform: rotate(0deg); -ms-transform: rotate(0deg); -o-transform: rotate(0deg); transform: rotate(0deg);} \n}\n\n@keyframes filter {\n	100% { -webkit-transform: translate( 0px , 0px );} \n	90% { -webkit-transform: translate( 0px , 0px ); -moz-transform: translate( 0px , 0px ); -ms-transform: translate( 0px , 0px ); -o-transform: translate( 0px , 0px ); transform: translate( 0px , 0px );} \n	86% { -webkit-transform: translate( 0px , -45px ); -moz-transform: translate( 0px , -45px ); -ms-transform: translate( 0px , -45px ); -o-transform: translate( 0px , -45px ); transform: translate( 0px , -45px );} \n	82% { -webkit-transform: translate( -75px , -45px ); -moz-transform: translate( -75px , -45px ); -ms-transform: translate( -75px , -45px ); -o-transform: translate( -75px , -45px ); transform: translate( -75px , -45px );} \n	36% { -webkit-transform: translate( -75px , -45px ); -moz-transform: translate( -75px , -45px ); -ms-transform: translate( -75px , -45px ); -o-transform: translate( -75px , -45px ); transform: translate( -75px , -45px );} \n	32% { -webkit-transform: translate( 60px , -45px ); -moz-transform: translate( 60px , -45px ); -ms-transform: translate( 60px , -45px ); -o-transform: translate( 60px , -45px ); transform: translate( 60px , -45px );} \n	28% { -webkit-transform: translate( 60px , 0px ); -moz-transform: translate( 60px , 0px ); -ms-transform: translate( 60px , 0px ); -o-transform: translate( 60px , 0px ); transform: translate( 60px , 0px );} \n	14% { -webkit-transform: translate( 60px , 0px ); -moz-transform: translate( 60px , 0px ); -ms-transform: translate( 60px , 0px ); -o-transform: translate( 60px , 0px ); transform: translate( 60px , 0px );} \n	10% { -webkit-transform: translate( 0px , 0px ); -moz-transform: translate( 0px , 0px ); -ms-transform: translate( 0px , 0px ); -o-transform: translate( 0px , 0px ); transform: translate( 0px , 0px );} \n	0% { -webkit-transform: translate( 0px , 0px ); -moz-transform: translate( 0px , 0px ); -ms-transform: translate( 0px , 0px ); -o-transform: translate( 0px , 0px ); transform: translate( 0px , 0px );} \n}\n\n@-webkit-keyframes filter {\n	100% { -webkit-transform: translate( 0px , 0px );} \n	90% { -webkit-transform: translate( 0px , 0px ); -moz-transform: translate( 0px , 0px ); -ms-transform: translate( 0px , 0px ); -o-transform: translate( 0px , 0px ); transform: translate( 0px , 0px );} \n	86% { -webkit-transform: translate( 0px , -45px ); -moz-transform: translate( 0px , -45px ); -ms-transform: translate( 0px , -45px ); -o-transform: translate( 0px , -45px ); transform: translate( 0px , -45px );} \n	82% { -webkit-transform: translate( -75px , -45px ); -moz-transform: translate( -75px , -45px ); -ms-transform: translate( -75px , -45px ); -o-transform: translate( -75px , -45px ); transform: translate( -75px , -45px );} \n	36% { -webkit-transform: translate( -75px , -45px ); -moz-transform: translate( -75px , -45px ); -ms-transform: translate( -75px , -45px ); -o-transform: translate( -75px , -45px ); transform: translate( -75px , -45px );} \n	32% { -webkit-transform: translate( 60px , -45px ); -moz-transform: translate( 60px , -45px ); -ms-transform: translate( 60px , -45px ); -o-transform: translate( 60px , -45px ); transform: translate( 60px , -45px );} \n	28% { -webkit-transform: translate( 60px , 0px ); -moz-transform: translate( 60px , 0px ); -ms-transform: translate( 60px , 0px ); -o-transform: translate( 60px , 0px ); transform: translate( 60px , 0px );} \n	14% { -webkit-transform: translate( 60px , 0px ); -moz-transform: translate( 60px , 0px ); -ms-transform: translate( 60px , 0px ); -o-transform: translate( 60px , 0px ); transform: translate( 60px , 0px );} \n	10% { -webkit-transform: translate( 0px , 0px ); -moz-transform: translate( 0px , 0px ); -ms-transform: translate( 0px , 0px ); -o-transform: translate( 0px , 0px ); transform: translate( 0px , 0px );} \n	0% { -webkit-transform: translate( 0px , 0px ); -moz-transform: translate( 0px , 0px ); -ms-transform: translate( 0px , 0px ); -o-transform: translate( 0px , 0px ); transform: translate( 0px , 0px );} \n}\n\n@keyframes grounds {\n	100% { -webkit-transform: translate( 0px , 0px ) rotate(0deg); -moz-transform: translate( 0px , 0px ) rotate(0deg); -ms-transform: translate( 0px , 0px ) rotate(0deg); -o-transform: translate( 0px , 0px ) rotate(0deg); transform: translate( 0px , 0px ) rotate(0deg);} \n	28% { -webkit-transform: translate( 0px , 0px ) rotate(0deg); -moz-transform: translate( 0px , 0px ) rotate(0deg); -ms-transform: translate( 0px , 0px ) rotate(0deg); -o-transform: translate( 0px , 0px ) rotate(0deg); transform: translate( 0px , 0px ) rotate(0deg);} \n	24% { -webkit-transform: translate(0px,-30px) rotate(-100deg);} \n	18% { -webkit-transform: translate(0px,-30px) rotate(-100deg);} \n	14% { -webkit-transform: translate( 0px , 0px ) rotate(0deg); -moz-transform: translate( 0px , 0px ) rotate(0deg); -ms-transform: translate( 0px , 0px ) rotate(0deg); -o-transform: translate( 0px , 0px ) rotate(0deg); transform: translate( 0px , 0px ) rotate(0deg);} \n	0% { } \n}\n\n@-webkit-keyframes grounds {\n	100% { -webkit-transform: translate( 0px , 0px ) rotate(0deg); -moz-transform: translate( 0px , 0px ) rotate(0deg); -ms-transform: translate( 0px , 0px ) rotate(0deg); -o-transform: translate( 0px , 0px ) rotate(0deg); transform: translate( 0px , 0px ) rotate(0deg);} \n	28% { -webkit-transform: translate( 0px , 0px ) rotate(0deg); -moz-transform: translate( 0px , 0px ) rotate(0deg); -ms-transform: translate( 0px , 0px ) rotate(0deg); -o-transform: translate( 0px , 0px ) rotate(0deg); transform: translate( 0px , 0px ) rotate(0deg);} \n	24% { -webkit-transform: translate(0px,-30px) rotate(-100deg);} \n	18% { -webkit-transform: translate(0px,-30px) rotate(-100deg);} \n	14% { -webkit-transform: translate( 0px , 0px ) rotate(0deg); -moz-transform: translate( 0px , 0px ) rotate(0deg); -ms-transform: translate( 0px , 0px ) rotate(0deg); -o-transform: translate( 0px , 0px ) rotate(0deg); transform: translate( 0px , 0px ) rotate(0deg);} \n	0% { } \n}\n\n@keyframes groundsPour {\n	100% { width: 0px; margin-left: 10px;} \n	27% { width: 0px; margin-left: 10px;} \n	23% { width: 0px; margin-left: -33px;} \n	19% { width: 43px; margin-left: -33px;} \n	15% { width: 0px; margin-left: 10px;} \n	0% { width: 0px; margin-left: 10px;} \n}\n\n@-webkit-keyframes groundsPour {\n	100% { width: 0px; margin-left: 10px;} \n	27% { width: 0px; margin-left: 10px;} \n	23% { width: 0px; margin-left: -33px;} \n	19% { width: 43px; margin-left: -33px;} \n	15% { width: 0px; margin-left: 10px;} \n	0% { width: 0px; margin-left: 10px;} \n}\n\n@keyframes groundsPourGrounds {\n	100% { margin-right: 0px;} \n	27% { margin-right: -43px;} \n	23% { margin-right: -43px;} \n	19% { margin-right: 0px;} \n	15% { margin-right: 0px;} \n	0% { margin-right: 0px;} \n}\n\n@-webkit-keyframes groundsPourGrounds {\n	100% { margin-right: 0px;} \n	27% { margin-right: -43px;} \n	23% { margin-right: -43px;} \n	19% { margin-right: 0px;} \n	15% { margin-right: 0px;} \n	0% { margin-right: 0px;} \n}\n\n@keyframes waterPour {\n	100% { height: 0px; margin-top: -75px;} \n	37% { height: 0px; margin-top: -75px;} \n	33% { height: 60px; margin-top: -135px;} \n	26% { height: 60px; margin-top: -135px;} \n	0% { height: 0px; margin-top: -135px;} \n	18% { height: 0px; margin-top: -135px;} \n}\n\n@-webkit-keyframes waterPour {\n	100% { height: 0px; margin-top: -75px;} \n	37% { height: 0px; margin-top: -75px;} \n	33% { height: 60px; margin-top: -135px;} \n	26% { height: 60px; margin-top: -135px;} \n	0% { height: 0px; margin-top: -135px;} \n	18% { height: 0px; margin-top: -135px;} \n}\n\n@keyframes water {\n	100% { margin-top: -60px;} \n	37% { margin-top: -60px;} \n	33% { margin-top: 0px;} \n	26% { margin-top: 0px;} \n	0% { margin-top: 0px;} \n	18% { margin-top: 0px;} \n}\n\n@-webkit-keyframes water {\n	100% { margin-top: -60px;} \n	37% { margin-top: -60px;} \n	33% { margin-top: 0px;} \n	26% { margin-top: 0px;} \n	0% { margin-top: 0px;} \n	18% { margin-top: 0px;} \n}\n\n@keyframes espresso {\n	100% { height: 0px; margin-top: 18px;} \n	70% { height: 0px; margin-top: 18px;} \n	67% { height: 18px; margin-top: 0px;} \n	55% { height: 18px; margin-top: 0px;} \n	52% { height: 0px; margin-top: 0px;} \n	0% { height: 0px; margin-top: 0px;} \n}\n\n@-webkit-keyframes espresso {\n	100% { height: 0px; margin-top: 18px;} \n	70% { height: 0px; margin-top: 18px;} \n	67% { height: 18px; margin-top: 0px;} \n	55% { height: 18px; margin-top: 0px;} \n	52% { height: 0px; margin-top: 0px;} \n	0% { height: 0px; margin-top: 0px;} \n}\n\n@keyframes greenlight {\n	100% { opacity: 0.25;} \n	70% { opacity: 0.25;} \n	67% { opacity: 1;} \n	52% { opacity: 1;} \n	49% { opacity: 0.25;} \n	0% { opacity: 0.25;} \n}\n\n@-webkit-keyframes greenlight {\n	100% { opacity: 0.25;} \n	70% { opacity: 0.25;} \n	67% { opacity: 1;} \n	52% { opacity: 1;} \n	49% { opacity: 0.25;} \n	0% { opacity: 0.25;} \n}\n\n@keyframes redlight {\n	100% { opacity: 1;} \n	70% { opacity: 1;} \n	67% { opacity: 0.25;} \n	52% { opacity: 0.25;} \n	49% { opacity: 1;} \n	0% { opacity: 1;} \n}\n\n@-webkit-keyframes redlight {\n	100% { opacity: 1;} \n	70% { opacity: 1;} \n	67% { opacity: 0.25;} \n	52% { opacity: 0.25;} \n	49% { opacity: 1;} \n	0% { opacity: 1;} \n}',
-					js: ''
-				}
-				pages.push(defaultPage)
-				localStorage.pages = JSON.stringify(pages)
-				window.curPage = localStorage.curPage = 0
+					js: '',
+					name: 'demo2'
+				}]
+				//_pages.push(defaultPage)
+				localStorage.pages = JSON.stringify(defaultPages)
+				localStorage.curPage = 0
 			}
 			window.pages = JSON.parse(localStorage.pages)
-			window.page = pages[localStorage.curPage]
-			htmlEditor.setValue(page.html, -1)
-			cssEditor.setValue(page.css, -1)
-			jsEditor.setValue(page.js, -1)
-			refreshView()
+			setValue()
 		}
+	}
+
+	function setValue() {
+		window.page = pages[localStorage.curPage] || {name: 'test' + (~~localStorage.curPage + 1)}
+		htmlEditor.setValue(page.html, -1)
+		cssEditor.setValue(page.css, -1)
+		jsEditor.setValue(page.js, -1)
+		refreshView()
 	}
 
 	function refreshView() {
 		var html = jade.render(htmlEditor.getValue(), locals)
 		var box = $('.preview > .box')
-
 		html = '<style>' + cssEditor.getValue() + '</style>' + html
 		box.html(html)
 		var script = document.createElement('script')
 		script.innerHTML = jsEditor.getValue()
 		box.append(script)
-
 	}
 
 	function bindEvent() {
 		$(document).keydown(function(e) {
 			// save
 			if (e.ctrlKey && e.keyCode == 83 && window.localStorage) {
-				var pages = JSON.parse(localStorage.pages)
-				var page = pages[localStorage.curPage]
 				page.html = htmlEditor.getValue()
 				page.css = cssEditor.getValue()
 				page.js = jsEditor.getValue()
+				if (localStorage.curPage == pages.length) {
+					pages[localStorage.curPage] = page
+				}
 				localStorage.pages = JSON.stringify(pages)
 				refreshView()
 				return false
@@ -279,8 +367,59 @@
 				height: 'calc((100% - ' + (3 - len) * 29 + 'px) / ' + len + ')'
 			})
 		})
+		$('.showDialog').click(function() {
+			var jadeTmpl = $('#dialogList').html()
+			var html = jade.render(jadeTmpl, {pages: pages})
+			$('.dialog-body').html(html)
+			$('.dialog').show()
+			$('.dialog li').eq(localStorage.curPage).addClass('active')
+			return false
+		})
+		$('.dialog .close').click(function() {
+			$('.dialog').hide()
+		})
+		$('.dialog').delegate('li', 'click', function() {
+			var index = $(this).index()
+			if (index == pages.length) {
+				$('.dialog').hide()
+			}
+			localStorage.curPage = index
+
+			$('.dialog li').removeClass('active').eq(localStorage.curPage).addClass('active')
+			setValue()
+		})
+		$('.dialog .delete').click(function() {
+			var index = $('.dialog li.active').index()
+			console.log(index, pages[index])
+			pages.splice(index, 1)
+			localStorage.pages = JSON.stringify(pages)
+			$('.showDialog').click()
+		})
+		$('.dialog .rename').click(function() {
+			var active = $('.dialog li.active')
+			var nameEl = active.find('.name')
+			nameEl.replaceWith('<input id=rename value="' + nameEl.text() + '"></input>')
+			console.log(nameEl.prevObject)
+			$('#rename').keydown(function(e) {
+				if (e.keyCode === 13) {
+					var name = active.find('input').val()
+					active.find('input').replaceWith('<span class=name>' + name + '</span>')
+					pages[active.index()].name = name
+					localStorage.pages = JSON.stringify(pages)
+				}
+			})
+		})
 	}
 
+	function exportHTML() {
+		var html = $('.preview').html()
+		console.log(html)
+	}
+	/*
+	TODO
+	如何导出 -> 导出的东西要可以导入
+	完善显示列表
+	*/
 
 </script>
 </html>
