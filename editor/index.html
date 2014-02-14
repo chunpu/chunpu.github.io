@@ -99,10 +99,14 @@
 		top: 0;
 		height: 100%;
 	}
-	.preview > .box {
-		margin-left: 16px;
-		overflow: auto;
+	.preview iframe {
+		position: absolute;
+		left: 16px;
+		top: 0;
 		height: 100%;
+		width: calc(100% - 20px);
+		overflow: auto;
+		border: 0;
 	}
 	.resize {
 		position: absolute;
@@ -184,6 +188,13 @@
 		padding: 2px;
 		cursor: pointer;
 	}
+	.err-line {
+		background-color: rgb(90, 51, 51);
+	}
+	.err-info {
+		color: rgb(255, 168, 168);
+		padding-left: 30px;
+	}
 </style>
 <script type='tmpl' id='dialogList'>
 ul
@@ -229,24 +240,19 @@ ul
 	<div class='preview' id='test'>
 		<div class='resize'>
 		</div>
-		<div class='box'>
-		</div>
+		<iframe class='box'>
+		</iframe>
 	</div>
 </body>
 <script>
 	ace.config.set("basePath", "./src")
+	var _img = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAABZUlEQVR4Xu3TQREAAAiEQK9/aWvsAxMw4O06ysAommCuINgTFKQgmAEMp4UUBDOA4bSQgmAGMJwWUhDMAIbTQgqCGcBwWkhBMAMYTgspCGYAw2khBcEMYDgtpCCYAQynhRQEM4DhtJCCYAYwnBZSEMwAhtNCCoIZwHBaSEEwAxhOCykIZgDDaSEFwQxgOC2kIJgBDKeFFAQzgOG0kIJgBjCcFlIQzACG00IKghnAcFpIQTADGE4LKQhmAMNpIQXBDGA4LaQgmAEMp4UUBDOA4bSQgmAGMJwWUhDMAIbTQgqCGcBwWkhBMAMYTgspCGYAw2khBcEMYDgtpCCYAQynhRQEM4DhtJCCYAYwnBZSEMwAhtNCCoIZwHBaSEEwAxhOCykIZgDDaSEFwQxgOC2kIJgBDKeFFAQzgOG0kIJgBjCcFlIQzACG00IKghnAcFpIQTADGE4LKQhmAMNpIQXBDGA4LQQL8oTPAGUY76lBAAAAAElFTkSuQmCC'
 	window.locals = {
 		title: 'title',
-		items: ['http://p1.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/22/1390362857166_360.jpg',
-		'http://p4.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/22/1390363037046_592.jpg',
-		'http://p3.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/22/1390363207154_597.jpg',
-		'http://p4.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/22/1390363476980_136.jpg',
-		'http://p1.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/22/1390363723071_330.jpg',
-		'http://p2.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/17/1389952844298_537.jpg',
-		'http://p2.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/17/1389952844298_537.jpg',
-		'http://p2.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/17/1389952844298_537.jpg',
-		'http://p2.img.cctvpic.com/photoAlbum/page/performance/img/2014/1/17/1389952844298_537.jpg'
-		]
+		items: []
+	}
+	for (var i = 0; i < 20; i++) {
+		locals.items[i] = _img
 	}
 
 	$(function() {
@@ -259,7 +265,7 @@ ul
 		// css
 		window.cssEditor = ace.edit("css-edit")
 		cssEditor.setFontSize(20)
-		cssEditor.getSession().setMode("ace/mode/css")
+		cssEditor.getSession().setMode("ace/mode/less")
 		cssEditor.setTheme("ace/theme/monokai")
 
 		// js
@@ -306,13 +312,26 @@ ul
 	}
 
 	function refreshView() {
+		var cssParser = lessParser
+		locals.pretty = true
+		locals.indents = 4
 		var html = jade.render(htmlEditor.getValue(), locals)
-		var box = $('.preview > .box')
-		html = '<style>' + cssEditor.getValue() + '</style>' + html
-		box.html(html)
-		var script = document.createElement('script')
-		script.innerHTML = jsEditor.getValue()
-		box.append(script)
+		//console.log(html)
+		var box = $('.preview iframe')
+		var css = cssParser(cssEditor.getValue())
+		//console.log(css.replace(/\n/g, ''))
+		$('.err-info').remove()
+		$('.err-line').removeClass('err-line')
+		if (css.msg) {
+			var lines = $('#css-edit .ace_text-layer .ace_line')
+			lines.eq(css.line - 1).addClass('err-line').append($('<span class="err-info">' + css.msg + '</span>'))
+			return
+		}
+		html = '<script src="../pub/jquery.min.js"><\/script><style>\n' + css + '\n</style>' + html + '\n<script>' + jsEditor.getValue() + '\n<\/script>'
+		var iframe = document.createElement('iframe')
+		box.replaceWith(iframe)
+		iframe.contentWindow.document.write(html)
+
 	}
 
 	function bindEvent() {
@@ -351,12 +370,16 @@ ul
 				editor.css('width', editor.width() / bodyWidth * 100 + '%')
 				preview.css('width', preview.width() / bodyWidth * 100 + '%')
 				// fuck ace shit scroll
-				var evt = document.createEvent('UIEvent');
-				evt.initUIEvent('resize', false, false, window, 1);
-				window.dispatchEvent(evt)
+				//resize()
 				return false
 			})
 		})
+
+		function resize() {
+			var evt = document.createEvent('UIEvent');
+			evt.initUIEvent('resize', false, false, window, 1);
+			window.dispatchEvent(evt)
+		}
 
 		$('.edit-area .top-bar h2').click(function() {
 			var editor = $(this).parents('.edit-area > div')
@@ -365,6 +388,9 @@ ul
 			var len = editors.length
 			editors.css({
 				height: 'calc((100% - ' + (3 - len) * 29 + 'px) / ' + len + ')'
+			})
+			editor.one('transitionend', function() {
+				resize()
 			})
 		})
 		$('.showDialog').click(function() {
@@ -421,5 +447,21 @@ ul
 	完善显示列表
 	*/
 
+	function lessParser(css) {
+		var parser = new less.Parser()
+		var ret
+		parser.parse(css, function(err, tree) {
+			if (err) {
+				ret = {
+					line: err.line,
+					msg: err.message
+				}
+			}
+			else ret = tree.toCSS()
+		})
+		return ret
+	}
+
 </script>
+<script src='../pub/less.min.js'></script>
 </html>
