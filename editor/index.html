@@ -38,6 +38,7 @@
 	div.ace-monokai .ace_gutter {
 		background: #2f3031;
 		color: #555;
+		-webkit-user-select: none;
 	}
 	.ace_gutter-cell {
 		padding-left: 5px !important;
@@ -98,14 +99,14 @@
 		width: 60%;
 		top: 0;
 		height: 100%;
+		overflow: hidden;
 	}
 	.preview iframe {
 		position: absolute;
 		left: 16px;
 		top: 0;
 		height: 100%;
-		width: calc(100% - 20px);
-		overflow: auto;
+		width: calc(100% - 16px);
 		border: 0;
 	}
 	.resize {
@@ -313,13 +314,12 @@ ul
 
 	function refreshView() {
 		var cssParser = lessParser
-		locals.pretty = true
+		//locals.pretty = true
 		locals.indents = 4
 		var html = jade.render(htmlEditor.getValue(), locals)
 		//console.log(html)
-		var box = $('.preview iframe')
 		var css = cssParser(cssEditor.getValue())
-		//console.log(css.replace(/\n/g, ''))
+		//document.write(css)
 		$('.err-info').remove()
 		$('.err-line').removeClass('err-line')
 		if (css.msg) {
@@ -327,11 +327,10 @@ ul
 			lines.eq(css.line - 1).addClass('err-line').append($('<span class="err-info">' + css.msg + '</span>'))
 			return
 		}
-		html = '<script src="../pub/jquery.min.js"><\/script><style>\n' + css + '\n</style>' + html + '\n<script>' + jsEditor.getValue() + '\n<\/script>'
-		var iframe = document.createElement('iframe')
-		box.replaceWith(iframe)
-		iframe.contentWindow.document.write(html)
-
+		html = '<script src="../pub/jquery.min.js"><\/script><style>\n' + css + '\n</style>' + html + '<script>' + jsEditor.getValue() + '\n<\/script>'
+		var fd = $('iframe')[0].contentWindow.document
+		fd.write(html)
+		fd.close()
 	}
 
 	function bindEvent() {
@@ -354,7 +353,7 @@ ul
 			var startX = ev.pageX
 			var preview = $('.preview')
 			var editor = $('.edit-area')
-			console.log(preview[0].style.width)
+			$('iframe').hide()
 			$(document).mousemove(function(ev2) {
 				var dx = ev2.pageX - startX
 				preview.css({
@@ -369,8 +368,7 @@ ul
 				var bodyWidth = $(document.body).width()
 				editor.css('width', editor.width() / bodyWidth * 100 + '%')
 				preview.css('width', preview.width() / bodyWidth * 100 + '%')
-				// fuck ace shit scroll
-				//resize()
+				$('iframe').show()
 				return false
 			})
 		})
@@ -457,7 +455,7 @@ ul
 					msg: err.message
 				}
 			}
-			else ret = tree.toCSS()
+			else ret = tree.toCSS({compress: true})
 		})
 		return ret
 	}
