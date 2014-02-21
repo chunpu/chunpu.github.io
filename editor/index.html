@@ -2,6 +2,8 @@
 <html>
 <head>
 	<title>editer</title>
+	<meta charset='utf-8'>
+	<meta name='renderer' content='webkit'>
 	<script src='./jade.js'></script>
 	<script src='./ace2.js'></script>
 	<script src='../pub/jquery.min.js'></script>
@@ -313,18 +315,27 @@ ul
 	}
 
 	function refreshView() {
+
 		var cssParser = lessParser
 		//locals.pretty = true
 		locals.indents = 4
 		var html = jade.render(htmlEditor.getValue(), locals)
-		//console.log(html)
-		var css = cssParser(cssEditor.getValue())
-		//document.write(css)
+		var css = {
+			message: 'css parse error',
+			line: 1
+		}
+		try {
+			css = cssParser(cssEditor.getValue())
+		} catch (e) {
+			css = e
+		}
 		$('.err-info').remove()
 		$('.err-line').removeClass('err-line')
-		if (css.msg) {
+		if (css.message) {
+			console.log(css)
 			var lines = $('#css-edit .ace_text-layer .ace_line')
-			lines.eq(css.line - 1).addClass('err-line').append($('<span class="err-info">' + css.msg + '</span>'))
+			// still error because ace lines is live not all
+			lines.eq(css.line - 1).addClass('err-line').append($('<span class="err-info">' + css.message + '</span>'))
 			return
 		}
 		html = '<script src="../pub/jquery.min.js"><\/script><style>\n' + css + '\n</style>' + html + '<script>' + jsEditor.getValue() + '\n<\/script>'
@@ -343,6 +354,7 @@ ul
 				if (localStorage.curPage == pages.length) {
 					pages[localStorage.curPage] = page
 				}
+
 				localStorage.pages = JSON.stringify(pages)
 				refreshView()
 				return false
@@ -450,10 +462,7 @@ ul
 		var ret
 		parser.parse(css, function(err, tree) {
 			if (err) {
-				ret = {
-					line: err.line,
-					msg: err.message
-				}
+				ret = err
 			}
 			else ret = tree.toCSS({compress: true})
 		})
