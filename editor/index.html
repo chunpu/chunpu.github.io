@@ -314,6 +314,11 @@ ul
 		refreshView()
 	}
 
+	function getCurrentFirstLine(editor) {
+		var box = $(editor.container)
+		return box.find('.ace_gutter .ace_gutter-cell').eq(0).text()
+	}
+
 	function refreshView() {
 
 		var cssParser = lessParser
@@ -335,7 +340,9 @@ ul
 			console.log(css)
 			var lines = $('#css-edit .ace_text-layer .ace_line')
 			// still error because ace lines is live not all
-			lines.eq(css.line - 1).addClass('err-line').append($('<span class="err-info">' + css.message + '</span>'))
+			var cLine = getCurrentFirstLine(cssEditor)
+
+			lines.eq(css.line - cLine).addClass('err-line').append($('<span class="err-info">' + css.message + '</span>'))
 			return
 		}
 		html = '<script src="../pub/jquery.min.js"><\/script><style>\n' + css + '\n</style>' + html + '<script>' + jsEditor.getValue() + '\n<\/script>'
