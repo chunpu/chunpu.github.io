@@ -324,7 +324,11 @@ ul
 		var cssParser = lessParser
 		//locals.pretty = true
 		locals.indents = 4
-		var html = jade.render(htmlEditor.getValue(), locals)
+		try {
+			var html = jade.render(htmlEditor.getValue(), locals)
+		} catch(e) {
+			console.log(e)
+		}
 		var css = {
 			message: 'css parse error',
 			line: 1
