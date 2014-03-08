@@ -322,8 +322,8 @@ ul
 	function refreshView() {
 
 		var cssParser = lessParser
-		//locals.pretty = true
-		locals.indents = 4
+		locals.pretty = true
+		locals.indents = 8
 		try {
 			var html = jade.render(htmlEditor.getValue(), locals)
 		} catch(e) {
@@ -350,6 +350,7 @@ ul
 			return
 		}
 		html = '<script src="../pub/jquery.min.js"><\/script><style>\n' + css + '\n</style>' + html + '<script>' + jsEditor.getValue() + '\n<\/script>'
+		console.log(html)
 		var fd = $('iframe')[0].contentWindow.document
 		fd.write(html)
 		fd.close()
@@ -475,7 +476,7 @@ ul
 			if (err) {
 				ret = err
 			}
-			else ret = tree.toCSS({compress: true})
+			else ret = tree.toCSS({compress: false})
 		})
 		return ret
 	}
