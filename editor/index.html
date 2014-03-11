@@ -311,7 +311,7 @@ ul
 		htmlEditor.setValue(page.html, -1)
 		cssEditor.setValue(page.css, -1)
 		jsEditor.setValue(page.js, -1)
-		refreshView()
+
 	}
 
 	function getCurrentFirstLine(editor) {
@@ -350,7 +350,7 @@ ul
 			return
 		}
 		html = '<script src="../pub/jquery.min.js"><\/script><style>\n' + css + '\n</style>' + html + '<script>' + jsEditor.getValue() + '\n<\/script>'
-		console.log(html)
+		//console.log(html)
 		var fd = $('iframe')[0].contentWindow.document
 		fd.write(html)
 		fd.close()
@@ -435,6 +435,8 @@ ul
 
 			$('.dialog li').removeClass('active').eq(localStorage.curPage).addClass('active')
 			setValue()
+			// split setValue and refreshView because the js may die forever
+			refreshView()
 		})
 		$('.dialog .delete').click(function() {
 			var index = $('.dialog li.active').index()
