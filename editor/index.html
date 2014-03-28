@@ -206,6 +206,12 @@ ul
       span.name= page.name
   li.add new
 </script>
+<noscript id='tmpl'>
+script(src='../pub/jquery.min.js')
+style= css
+body!= html
+script= js
+</noscript>
 <body>
 	<div class='dialog'>
 		<div class='dialog-head'>
@@ -257,6 +263,14 @@ ul
 	for (var i = 0; i < 20; i++) {
 		locals.items[i] = _img
 	}
+	window.log = true
+	function _log() {
+		if (window.log)
+			console.log.apply(console, arguments)
+	}
+	window.pretty = true // default is true, and so we can change it simple in console
+	var cssParser = lessParser // default lessParser
+	var htmlParser = jadeParser
 
 	$(function() {
 		// html
@@ -305,7 +319,6 @@ ul
 		htmlEditor.setValue(page.html, -1)
 		cssEditor.setValue(page.css, -1)
 		jsEditor.setValue(page.js, -1)
-
 	}
 
 	function getCurrentFirstLine(editor) {
@@ -315,14 +328,18 @@ ul
 
 	function refreshView() {
 
-		var cssParser = lessParser
-		locals.pretty = true
-		locals.indents = 8
-		try {
-			var html = jade.render(htmlEditor.getValue(), locals)
-		} catch(e) {
-			console.log(e)
-		}
+		
+		locals.pretty = pretty
+
+		var html
+		htmlParser(htmlEditor.getValue(), locals, function(err, data) {
+			if (err) {
+				_log('html parse error', err)
+				return
+			}
+			html = data
+		})
+
 		var css = {
 			message: 'css parse error',
 			line: 1
@@ -343,8 +360,12 @@ ul
 			lines.eq(css.line - cLine).addClass('err-line').append($('<span class="err-info">' + css.message + '</span>'))
 			return
 		}
-		html = '<script src="../pub/jquery.min.js"><\/script><style>\n' + css + '\n</style>' + html + '<script>' + jsEditor.getValue() + '\n<\/script>'
-		//console.log(html)
+
+		//html = '<script src="../pub/jquery.min.js"><\/script><style>\n' + css + '\n</style>' + html + '<script>' + jsEditor.getValue() + '\n<\/script>'
+
+		html = htmlParser($('#tmpl').html(), {js: jsEditor.getValue(), css: css, html: html, pretty: true})
+		_log(html)
+
 		$('iframe').replaceWith('<iframe>') // clear js context, but chrome console changes
 		var fd = $('iframe')[0].contentWindow.document
 		fd.write(html)
@@ -412,7 +433,7 @@ ul
 		})
 		$('.showDialog').click(function() {
 			var jadeTmpl = $('#dialogList').html()
-			var html = jade.render(jadeTmpl, {pages: pages})
+			var html = htmlParser(jadeTmpl, {pages: pages})
 			$('.dialog-body').html(html)
 			$('.dialog').show()
 			$('.dialog li').eq(localStorage.curPage).addClass('active')
@@ -473,7 +494,19 @@ ul
 			if (err) {
 				ret = err
 			}
-			else ret = tree.toCSS({compress: false})
+			else ret = tree.toCSS({compress: !pretty})
+		})
+		return ret
+	}
+
+	function jadeParser(tmpl, data, cb) {
+		// use cb
+		data.pretty = pretty
+		var ret
+		jade.render(tmpl, data, function(err, res) {
+			// fix err with line
+			cb && cb(err, res)
+			ret = res
 		})
 		return ret
 	}
