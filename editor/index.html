@@ -207,10 +207,13 @@ ul
   li.add new
 </script>
 <noscript id='tmpl'>
-script(src='../pub/jquery.min.js')
-style= css
-body!= html
-script= js
+doctype html
+html
+	head
+		script(src='../pub/jquery.min.js')
+		style= css
+	body!= html
+		script= js
 </noscript>
 <body>
 	<div class='dialog'>
