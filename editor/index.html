@@ -211,8 +211,10 @@ doctype html
 html
 	head
 		script(src='../pub/jquery.min.js')
-		style= css
-	body!= html
+		style
+			| #{css}
+	body
+		| !{html}
 		script= js
 </noscript>
 <body>
@@ -281,18 +283,21 @@ html
 		htmlEditor.setFontSize(20)
 		htmlEditor.getSession().setMode("ace/mode/jade")
 		htmlEditor.setTheme("ace/theme/monokai")
+		htmlEditor.getSession().setUseWrapMode(true)
 
 		// css
 		window.cssEditor = ace.edit("css-edit")
 		cssEditor.setFontSize(20)
 		cssEditor.getSession().setMode("ace/mode/less")
 		cssEditor.setTheme("ace/theme/monokai")
+		cssEditor.getSession().setUseWrapMode(true)
 
 		// js
 		window.jsEditor = ace.edit("js-edit")
 		jsEditor.setFontSize(20)
 		jsEditor.getSession().setMode("ace/mode/javascript")
 		jsEditor.setTheme("ace/theme/monokai")
+		jsEditor.getSession().setUseWrapMode(true)
 
 		initValue()
 		bindEvent()
@@ -355,12 +360,18 @@ html
 		$('.err-info').remove()
 		$('.err-line').removeClass('err-line')
 		if (css.message) {
-			console.log(css)
-			var lines = $('#css-edit .ace_text-layer .ace_line')
-			// still error because ace lines is live not all
-			var cLine = getCurrentFirstLine(cssEditor)
+			_log(css)
+			
+			//gotoline
+			cssEditor.gotoLine(css.line, css.column)
 
-			lines.eq(css.line - cLine).addClass('err-line').append($('<span class="err-info">' + css.message + '</span>'))
+			// not use ace because it will auto disappear, and won't poison the raw text
+			// still error because ace lines is live not all
+			setTimeout(function() {
+				var lines = $('#css-edit .ace_text-layer .ace_line')
+				var cLine = getCurrentFirstLine(cssEditor)
+				lines.eq(css.line - cLine).addClass('err-line').append($('<span class="err-info">' + css.message + '</span>'))
+			}, 100) // don't know why...
 			return
 		}
 
@@ -412,6 +423,7 @@ html
 				editor.css('width', editor.width() / bodyWidth * 100 + '%')
 				preview.css('width', preview.width() / bodyWidth * 100 + '%')
 				$('iframe').show()
+				resize()
 				return false
 			})
 		})
