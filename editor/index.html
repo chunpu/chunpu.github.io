@@ -215,7 +215,7 @@ html
 			| #{css}
 	body
 		| !{html}
-		script= js
+		script!= js
 </noscript>
 <body>
 	<div class='dialog'>
@@ -268,7 +268,7 @@ html
 	for (var i = 0; i < 20; i++) {
 		locals.items[i] = _img
 	}
-	window.log = true
+	//window.log = true
 	function _log() {
 		if (window.log)
 			console.log.apply(console, arguments)
@@ -339,10 +339,24 @@ html
 		
 		locals.pretty = pretty
 
-		var html
-		htmlParser(htmlEditor.getValue(), locals, function(err, data) {
+		// test tab
+		locals.tabs = [{
+			title: 1,
+			mod: '001'
+		}, {
+			title: 2,
+			mod: '002'
+		}]
+
+		var html = htmlEditor.getValue()
+		
+		html = tmpl(html, locals)
+		console.log(html)
+		// end test
+		htmlParser(html, locals, function(err, data) {
 			if (err) {
 				_log('html parse error', err)
+				console.log(err)
 				return
 			}
 			html = data
@@ -384,6 +398,30 @@ html
 		var fd = $('iframe')[0].contentWindow.document
 		fd.write(html)
 		fd.close()
+	}
+
+	function tmpl(el, opt) {
+		var src = el.innerHTML || el
+		var arr = ['with(opt) {var ret = ""']
+		src.split('{{').forEach(function(x, i) {
+		    var two = x.split('}}')
+		    if (two[1]) {
+		        genJS(two[0].trim())
+		        return filter(two[1])
+		    }
+		    filter(two[0])
+		})
+		function genJS(jsstr) {
+		    if (jsstr[0] === '=') arr.push('ret += ' + jsstr.substr(1))
+		    else arr.push(jsstr)
+		}
+		function filter(html) {
+		    arr.push('ret += "' + html.replace(/('|"|\\)/g, '\\$1').replace(/\r/g, '\\r').replace(/\n/g, '\\n') + '"')
+		}
+		arr.push('return ret}')
+		// console.log(arr.join('\n'))
+		// here is bug
+		return new Function('opt', arr.join('\n'))(opt)
 	}
 
 	function bindEvent() {
