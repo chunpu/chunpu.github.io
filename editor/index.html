@@ -5,6 +5,7 @@
 	<meta charset='utf-8'>
 	<meta name='renderer' content='webkit'>
 	<script src='./jade.js'></script>
+	<script src='./yaml.js'></script>
 	<script src='./ace2.js'></script>
 	<script src='../pub/jquery.min.js'></script>
 </head>
@@ -339,6 +340,39 @@ html
 		
 		locals.pretty = pretty
 
+		// test grid
+		var grid = {
+			width: '980px',
+			rows: [
+				[
+					[
+						{
+							mod: '001',
+							data: ''
+						},
+						{
+							mod: '002',
+							data: ''
+						}
+					]
+				], // row1
+				[
+					[
+						{
+							mod: '001',
+							data: ''
+						},
+						{
+							mod: '002',
+							data: ''
+						}
+					]
+
+				] // row2
+			]
+		}
+		// end test
+
 		// test tab
 		locals.tabs = [{
 			title: 1,
@@ -351,8 +385,25 @@ html
 		var html = htmlEditor.getValue()
 		
 		html = tmpl(html, locals)
-		console.log(html)
+		//console.log(html)
 		// end test
+		var js = jsEditor.getValue().trim()
+		var yamlSplit = '---'
+		if (js.indexOf(yamlSplit) === 0) {
+			var arr = js.split(yamlSplit)
+			arr.shift() // shift ''
+			var data = jsyaml.load(arr.shift().trim())
+			js = arr.join('---')
+			var jsDeclare = []
+			for (var k in data) {
+				jsDeclare.push(k + ' = ' + JSON.stringify(data[k]))
+			}
+			var str = 'var\n  ' + jsDeclare.join('\n, ')
+			//console.log(str)
+			js = ['$(function() {', str, js, '})'].join('\n')
+			//console.log(js)
+		}
+		$.extend(locals, data)
 		htmlParser(html, locals, function(err, data) {
 			if (err) {
 				_log('html parse error', err)
@@ -366,8 +417,17 @@ html
 			message: 'css parse error',
 			line: 1
 		}
+		var cssStr = cssEditor.getValue()
+		var cssDeclare = []
+		for (var k in data) {
+			if (typeof data[k] != 'object') {
+				cssDeclare.push('@' + k + ': ' + data[k] + ';')
+			}
+		}
+		cssStr = cssDeclare.join('\n') + cssStr
+		console.log(cssStr)
 		try {
-			css = cssParser(cssEditor.getValue())
+			css = cssParser(cssStr)
 		} catch (e) {
 			css = e
 		}
@@ -391,7 +451,7 @@ html
 
 		//html = '<script src="../pub/jquery.min.js"><\/script><style>\n' + css + '\n</style>' + html + '<script>' + jsEditor.getValue() + '\n<\/script>'
 
-		html = htmlParser($('#tmpl').html(), {js: jsEditor.getValue(), css: css, html: html, pretty: true})
+		html = htmlParser($('#tmpl').html(), {js: js, css: css, html: html, pretty: true})
 		_log(html)
 
 		$('iframe').replaceWith('<iframe>') // clear js context, but chrome console changes
