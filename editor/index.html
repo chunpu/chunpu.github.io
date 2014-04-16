@@ -406,7 +406,7 @@ html
 		htmlParser(html, locals, function(err, data) {
 			if (err) {
 				_log('html parse error', err)
-				console.log(err)
+				//console.log(html, err)
 				return
 			}
 			html = data
@@ -424,7 +424,7 @@ html
 			}
 		}
 		cssStr = cssDeclare.join('\n') + cssStr
-		console.log(cssStr)
+		//console.log(cssStr)
 		try {
 			css = cssParser(cssStr)
 		} catch (e) {
@@ -451,6 +451,7 @@ html
 		//html = '<script src="../pub/jquery.min.js"><\/script><style>\n' + css + '\n</style>' + html + '<script>' + jsEditor.getValue() + '\n<\/script>'
 
 		html = htmlParser($('#tmpl').html(), {js: js, css: css, html: html, pretty: true})
+		//console.log(html)
 		_log(html)
 
 		$('iframe').replaceWith('<iframe>') // clear js context, but chrome console changes
@@ -579,9 +580,12 @@ html
 		var parser = new less.Parser()
 		var ret
 		parser.parse(css, function(err, tree) {
+			tree.toCSS()
 			if (err) {
 				ret = err
+				console.log(css, err)
 			}
+
 			else ret = tree.toCSS({compress: !pretty})
 		})
 		return ret
@@ -599,6 +603,152 @@ html
 		return ret
 	}
 
+</script>
+<script>
+// 这里的函数需要既可以在node运行(主要在node中), 又可以在网页运行, 因此不能用$
+function run() {
+	// 第一步, 入口mod, 一般入口mod为grid
+	// 要注意的是这些函数应该都是异步的, 我们需要从数据库获取mod的信息
+	var mod = {
+		modid: 'grid'
+	}
+	var test = [mod, mod, mod]
+	findMods(mod, function() {
+		console.log(mod)
+		// 为什么要分成两部? 因为编译的时候, 完全可以locals是一个值, 即独立的编译后的不需要请求数据库的单独模块
+		// 获取全部mods中的jade, js, less
+		var html = compile(mod) // final html
+	})
+
+}
+
+function compile(mod) {
+	// jade is compile once(because it needs all mixin), but css and js are complied when met
+	var mixins = []
+	walkMixin(mod)
+	console.log(mixins)
+
+	// get mixins first
+	mixins.push('+' + mod.name)
+	// render css, js html
+
+	window.m = mixins.join('\n').split('\n')
+	htmlParser(mixins.join('\n'), mod.data, function(err, ret) {
+		console.log(err, ret, 222)
+		//document.write(ret)
+	})
+
+	function walkMixin(o) {
+		//console.log(mod.html, mod.name)
+		if (o.modid) {
+			var mixin = o.html.split('\n').map(function(x) {
+				return '  ' + x
+			}).join('\n')
+			// 有更多事要做了, 传入mod, 还要看是否有data, 有data要加- with(mod.data)!, 帅呆了!
+			mixin = 'mixin ' + o.name + '\n' + mixin
+			mixins.push(mixin)
+			if (typeof o.data == 'object') {
+				walkMixin(o.data)
+			}
+			return
+		}
+		for (var k in o) {
+			if (typeof o[k] == 'object') {
+				walkMixin(o[k])
+			}
+		}
+	}
+}
+
+function fixMod(mod, cb) {
+	// 把没有fixed的mod对象(原始mod)变成可用的mod
+	// 要注意的是要确保没有dataid, 一切照样运作!
+	// 就是说data仅从js的yaml中来, 用默认值就能渲染页面
+	if (mod.dataid) {
+		// get data, dataid is option
+	}
+	getMod(mod.modid, function(err, res) {
+		// 取到data后(css, js, html), 先分析js中的yaml
+		var yamlSplit = '---'
+		var js = res.js
+		if (js.indexOf(yamlSplit) === 0) {
+			var arr = js.split(yamlSplit)
+			arr.shift() // shift ''
+			var data = jsyaml.load(arr.shift().trim())
+			js = arr.join('---')
+			var jsDeclare = []
+			for (var k in data) {
+				jsDeclare.push(k + ' = ' + JSON.stringify(data[k]))
+			}
+			var str = 'var\n  ' + jsDeclare.join('\n, ')
+			//console.log(str)
+			js = ['$(function() {', str, js, '})'].join('\n')
+			//console.log(js)
+		} else {
+			js = ['$(function() {', js, '})'].join('\n')
+		}
+		extend(mod, res, {
+			js: js,
+			data: data,
+			fixed: true
+		})
+		cb(null)
+	})
+}
+
+function findMods(o, cb) {
+	if (o.modid && !o.fixed) {
+		fixMod(o, function() {
+			findMods(o.data, cb)
+		})
+		// fix its data to
+		return
+	}
+	var count = 1
+	for (var k in o) {
+		if (typeof o[k] == 'object') {
+			count++
+			findMods(o[k], _cb)
+		}
+	}
+	_cb()
+	function _cb() {
+		count--
+		if (count == 0) {
+			cb()
+		}
+	}
+}
+
+var mods = {} // save mod hash
+function getMod(id, cb) {
+	console.log(id)
+	if (mods[id]) return cb(null, mods[id])
+	var pages = JSON.parse(localStorage.pages)
+	var ret = pages.filter(function(a, i) {
+		return a.name == id
+	})
+	//if (ret.length == 1) cb(null, ret[0])
+	if (ret.length == 1) setTimeout(cb, 200, null, ret[0])
+}
+
+function getData(id, cb) {
+
+}
+
+function extend(a) {
+	for (var i = 1; i < arguments.length; i++) {
+		var b
+		if (b = arguments[i]) {
+			for (var k in b) {
+				a[k] = b[k]
+			}
+		}
+	}
+	return a
+}
+
+run()
 </script>
 <script src='../pub/less.min.js'></script>
 </html>
