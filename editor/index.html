@@ -623,29 +623,60 @@ function run() {
 }
 
 function compile(mod) {
-	// jade is compile once(because it needs all mixin), but css and js are complied when met
-	var mixins = []
+	// jade is compile once(because it needs all mixin)
+	// but css and js are complied when met
+	// 这里有个问题, 带有变量的css, 没法让其他组件通用, 比如一个轮播6张图, 一个轮播7张图
+	// 这个问题几乎是毁灭性的, 我们只能做出让步, 每次编译与缓存中的css对比, 一样则不管, 不一样则+namespace覆盖之..即多个才会有namespace
+	// 问题在于namespace是啥呢, 是dataid嘛, dataid即便是默认值, 我们也不知道它用了默认值
+	// 解决方法是在option中加入namespace, 如果有namespace, 则按照id, 否则就是modid, 同样, namespace对于js的处理也是分开来的, 且namespace只能用true
+	// 以后可能根据是否有yaml来判断是否namespace
+	// 数据结构
+	// cssandjs: {uuid: {css, js, data}} uuid = data.uuid, uuid是css的wrap, 也是js的`_$`的selector
+	var mixins = [], cssjs = {}
 	walkMixin(mod)
-	console.log(mixins)
-
+	//console.log(mixins)
+	//console.log(111, cssjs)
 	// get mixins first
 	mixins.push('+' + mod.name)
-	// render css, js html
+	// render css, js
+	getCssJs(cssjs, function(err, css, js) {
+
+		htmlParser(mixins.join('\n'), mod.data, function(err, html) {
+			//console.log(err, ret, 222)
+			//document.write(ret)
+			html = htmlParser($('#tmpl').html(), {js: js, css: css, html: html, pretty: true})
+			console.log(html)
+			document.write(html)
+		})
+
+	})
 
 	window.m = mixins.join('\n').split('\n')
-	htmlParser(mixins.join('\n'), mod.data, function(err, ret) {
-		console.log(err, ret, 222)
-		//document.write(ret)
-	})
+	// render html
+
 
 	function walkMixin(o) {
 		//console.log(mod.html, mod.name)
 		if (o.modid) {
 			var mixin = o.html.split('\n').map(function(x) {
-				return '  ' + x
+				return '      ' + x // 6 space
 			}).join('\n')
+			var uuid = o.data.uuid || o.modid
+			cssjs[uuid] = cssjs[uuid] || {
+				css: o.css,
+				js: o.js,
+				data: o.data
+			}
 			// 有更多事要做了, 传入mod, 还要看是否有data, 有data要加- with(mod.data)!, 帅呆了!
-			mixin = 'mixin ' + o.name + '\n' + mixin
+			// add wrapper!
+			// mixin xx(locals)
+			// 	 - locals = locals || {}; locals.data = locals.data || {}
+			//   with (locals.data)
+			mixin = 'mixin ' + o.name + '(locals)\n'
+				+ '  - locals = locals || {}; locals.data = locals.data || {}\n'
+				+ '  - with (locals.data)\n'
+				+ '    .mod.' + uuid + '\n'
+				+ mixin
 			mixins.push(mixin)
 			if (typeof o.data == 'object') {
 				walkMixin(o.data)
@@ -658,6 +689,36 @@ function compile(mod) {
 			}
 		}
 	}
+}
+
+function getCssJs(hash, cb) {
+	var css = [], js = [] // css should comiple, js only runtime object
+	//console.log(111, hash)
+	for (var k in hash) {
+		console.log(222, hash[k])
+		var data = hash[k].data
+		var cssStr = hash[k].css
+		var cssDeclare = []
+		for (var k2 in data) {
+			if (typeof data[k2] != 'object') {
+				cssDeclare.push('@' + k2 + ': ' + data[k2] + ';')
+			}
+		}
+		cssStr = '.' + k + '{' + cssDeclare.join('\n') + cssStr + '}'
+		//console.log(cssStr)
+		css.push(cssStr)
+
+		// js在去yaml的时候已经拼好了
+		js.push('["' + k + '", ' + hash[k].js + ']')
+	}
+	//console.log(js)
+	//console.log(css)
+	css = cssParser(css.join('\n'))
+	js = 'var fn = [' + js.join(', ') + ']'
+	cb(null, css, js)
+/*	//console.log(js)
+	eval(js)
+	console.log(fn)*/
 }
 
 function fixMod(mod, cb) {
@@ -682,10 +743,10 @@ function fixMod(mod, cb) {
 			}
 			var str = 'var\n  ' + jsDeclare.join('\n, ')
 			//console.log(str)
-			js = ['$(function() {', str, js, '})'].join('\n')
+			js = ['function() {', str, js, '}'].join('\n')
 			//console.log(js)
 		} else {
-			js = ['$(function() {', js, '})'].join('\n')
+			js = ['function() {', js, '}'].join('\n')
 		}
 		extend(mod, res, {
 			js: js,
