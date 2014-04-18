@@ -212,6 +212,7 @@ doctype html
 html
 	head
 		script(src='../pub/jquery.min.js')
+		script(src='./runtime.js')
 		style
 			| #{css}
 	body
@@ -645,8 +646,10 @@ function compile(mod) {
 			//console.log(err, ret, 222)
 			//document.write(ret)
 			html = htmlParser($('#tmpl').html(), {js: js, css: css, html: html, pretty: true})
-			console.log(html)
+			//console.log(html)
 			document.write(html)
+			document.close()
+			
 		})
 
 	})
@@ -714,11 +717,8 @@ function getCssJs(hash, cb) {
 	//console.log(js)
 	//console.log(css)
 	css = cssParser(css.join('\n'))
-	js = 'var fn = [' + js.join(', ') + ']'
+	js = 'var mods2run = [' + js.join(', ') + ']'
 	cb(null, css, js)
-/*	//console.log(js)
-	eval(js)
-	console.log(fn)*/
 }
 
 function fixMod(mod, cb) {
@@ -743,10 +743,10 @@ function fixMod(mod, cb) {
 			}
 			var str = 'var\n  ' + jsDeclare.join('\n, ')
 			//console.log(str)
-			js = ['function() {', str, js, '}'].join('\n')
+			js = ['function($) {', str, js, '}'].join('\n')
 			//console.log(js)
 		} else {
-			js = ['function() {', js, '}'].join('\n')
+			js = ['function($) {', js, '}'].join('\n')
 		}
 		extend(mod, res, {
 			js: js,

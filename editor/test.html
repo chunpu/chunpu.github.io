@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="../pub/jquery.min.js"></script>
+    <style>.grid .span3 {
+  width: 300px;
+}
+.grid .span6 {
+  width: 600px;
+}
+.grid .col {
+  float: left;
+}
+@font-face {
+  font-family: 'iconfont';
+  src: url('http://at.alicdn.com/t/font_1396505954_3063805.eot');
+  src: url('http://at.alicdn.com/t/font_1396505954_3063805.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */ url('http://at.alicdn.com/t/font_1396505954_3327038.woff') format('woff'), /* chrome、firefox */ url('http://at.alicdn.com/t/font_1396505954_2656283.ttf') format('truetype'), /* chrome、firefox、opera、Safari, Android, iOS 4.2+*/ url('http://at.alicdn.com/t/font_1396505954_3710315.svg#iconfont') format('svg');
+  
+  /* IE9*/
+  /* iOS 4.1- */
+}
+.lunbo body {
+  font-size: 16px;
+}
+.lunbo * {
+  margin: 0;
+  padding: 0;
+}
+.lunbo i,
+.lunbo .i {
+  font-family: iconfont;
+  font-style: normal;
+  color: rgba(255, 255, 255, 0.69);
+  display: inline;
+}
+.lunbo ul {
+  list-style: none;
+}
+.lunbo .r {
+  float: right;
+}
+.lunbo .orange {
+  background-color: orange;
+}
+.lunbo .pink {
+  background-color: pink;
+}
+.lunbo .green {
+  background-color: green;
+}
+.lunbo .blue {
+  background-color: blue;
+}
+.lunbo .mod {
+  position: relative;
+  height: 300px;
+  border: 1px solid #ccc;
+  width: 600px;
+  margin: 200px auto;
+  overflow: hidden;
+}
+.lunbo .mod i,
+.lunbo .mod .i {
+  font-size: 30px;
+  line-height: 45px;
+  padding: 0 6px;
+  position: absolute;
+  z-index: 10;
+  cursor: pointer;
+  -webkit-user-select: none;
+  top: 50%;
+  margin-top: -22.5px;
+}
+.lunbo .mod i:hover,
+.lunbo .mod .i:hover {
+  background: rgba(143, 143, 143, 0.47);
+}
+.lunbo .mod .prev {
+  left: 0;
+}
+.lunbo .mod .next {
+  right: 0;
+}
+.lunbo .mod ul.main {
+  width: 4800px;
+  position: absolute;
+  left: 0;
+}
+.lunbo .mod ul.main li {
+  float: left;
+  height: 300px;
+  width: 600px;
+}
+.lunbo .mod ul.main li div {
+  height: 100%;
+  text-align: center;
+  color: #fff;
+}
+.lunbo .mod .navbar {
+  position: absolute;
+  bottom: 0;
+  background: rgba(204, 204, 204, 0.45);
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  width: 100%;
+}
+.lunbo .mod .navbar span {
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  background: #777;
+  margin: 0 5px;
+  height: 13.33333333px;
+  width: 13.33333333px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.lunbo .mod .navbar span.cur {
+  background: #5cb85c;
+}
+</style>
+  </head>
+  <body>
+<div class="mod grid">
+  <div class="grid">
+    <div class="row">
+      <div class="col span3">
+        <ul class="main">
+        </ul>
+        <h1>col(span3)</h1>
+      </div>
+      <div class="col span6">
+        <h1>col(span6)</h1>
+      </div>
+      <div class="col span6">
+        <h1>xx</h1>
+        <div class="mod lunbo">
+          <div class="mod">
+            <h1>600px</h1><a class="i prev">&#xf016e;</a><a class="i next">&#xf016d;</a>
+            <ul class="main">
+              <li>
+                  <div class="blue"></div>
+              </li>
+              <li>
+                  <div class="orange"></div>
+              </li>
+              <li>
+                  <div class="pink"></div>
+              </li>
+              <li>
+                  <div class="green"></div>
+              </li>
+              <li>
+                  <div class="orange"></div>
+              </li>
+              <li>
+                  <div class="pink"></div>
+              </li>
+              <li>
+                  <div class="green"></div>
+              </li>
+            </ul>
+            <div class="navbar"><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col span3">
+        <h1>col(span3)</h1>
+      </div>
+    </div>
+  </div>
+</div>
+    <script>var fn = [["grid", function() {
+var
+  rows = [[{"width":"span3"},{"width":"span6"},{"width":"span6","mods":[{"modid":"lunbo"}]},{"width":"span3"}]]
+
+}], ["lunbo", function($) {
+var
+  w = "600px"
+, n = 7
+, speed = 100
+, autoSpeed = 2000
+, isAutorun = false
+
+    var w = parseInt(w)
+    // init
+    var cur = 0
+    var isHover = false
+    var timer
+    var navLi = $('.navbar span').eq(0).addClass('cur').end()
+    var ul = $('ul.main')
+    console.log($.each)
+    $('ul.main li:eq(0)').clone().appendTo(ul) // clone one
+    
+    // bindEvent
+    $('a.i').click(handler)
+    // 为什么是hover而不是click, 因为点点比较小, 按起来很麻烦
+    navLi.mouseover(handler)
+    ul.hover(function(ev) {
+        if (ev.type == 'mouseenter') return isHover = true
+        autorun()
+        isHover = false
+    })
+    
+    autorun()
+    
+    function handler(ev) {
+        if (ul.is(':animated')) return
+        if (ev.type == 'click') {
+            var flag = -1 // 后退
+            if ($(this).is('.next')) flag = 1 // 前进
+            if (flag === -1 && cur === 0) {
+                // 第一个后退
+                ul.css({left: '-' + n * w + 'px'})
+                cur = n
+            } else if (flag === 1 && cur === n) {
+                ul.css({left: '0px'})
+                cur = 0
+            }
+            cur = cur + flag           
+        } else if (ev.type == 'mouseover') {
+            var index = $(this).index()
+            if ((cur + n) % n === index) return
+            cur = index            
+        }
+        ul.animate({left: '-' + cur * w + 'px'}, speed)
+        navLi.removeClass('cur').eq(cur - n).addClass('cur')
+        autorun()
+    }
+    
+    // 关于autorun, hover时停止, 点击后重新计时, 因此应该是用setTimeout
+    
+    function autorun() {
+        if (!isAutorun) return
+        clearTimeout(timer)
+        timer = setTimeout(function() {
+            autorun()
+            if (isHover) return
+            $('.next').click()
+        }, autoSpeed)
+    }
+    
+
+}]]
+
+fn = fn[1][1]
+
+/*context = undefined
+context = $('.lunbo')[0]
+
+$.fn.find = function( selector ) {
+  var i,
+    len = this.length,
+    ret = [],
+    self = this;
+    //console.log(selector, this)
+    if (context && context.nodeType) {
+      for (var i = 0; i < len; i++) {
+        if (this[i] == document) this[i] = context
+      }
+    }
+  if ( typeof selector !== "string" ) {
+    return this.pushStack( jQuery( selector ).filter(function() {
+      for ( i = 0; i < len; i++ ) {
+        if ( jQuery.contains( self[ i ], this ) ) {
+          return true;
+        }
+      }
+    }) );
+  }
+
+  for ( i = 0; i < len; i++ ) {
+    console.log(selector, self[i])
+    jQuery.find( selector, self[ i ], ret );
+  }
+
+  // Needed because $( selector, context ) becomes $( context ).find( selector )
+  ret = this.pushStack( len > 1 ? jQuery.unique( ret ) : ret );
+  ret.selector = this.selector ? this.selector + " " + selector : selector;
+  return ret;
+}
+*/
+function run(dom, fn) {
+  var _$ = function(sel) {
+    if (typeof sel == 'string' && sel[0] != '<') {
+      return $(dom).find(sel)
+    }
+    return $.apply(null, arguments)
+  }
+  $.extend(_$, $)
+  fn.call(null, _$)
+  
+}
+
+run($('.lunbo')[0], fn)
+//fn()
+
+</script>
+  </body>
+</html> 
