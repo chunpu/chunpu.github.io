@@ -337,51 +337,14 @@ html
 	}
 
 	function refreshView() {
+		//console.log('refreshview', page)
 
+		run({modid: page.name}, function(err, html) {
+			//console.log(333, err, html)
+			renderFrame(html)
+		})
 		
 		locals.pretty = pretty
-
-		// test grid
-		var grid = {
-			width: '980px',
-			rows: [
-				[
-					[
-						{
-							mod: '001',
-							data: ''
-						},
-						{
-							mod: '002',
-							data: ''
-						}
-					]
-				], // row1
-				[
-					[
-						{
-							mod: '001',
-							data: ''
-						},
-						{
-							mod: '002',
-							data: ''
-						}
-					]
-
-				] // row2
-			]
-		}
-		// end test
-
-		// test tab
-		locals.tabs = [{
-			title: 1,
-			mod: '001'
-		}, {
-			title: 2,
-			mod: '002'
-		}]
 
 		var html = htmlEditor.getValue()
 		
@@ -455,6 +418,10 @@ html
 		//console.log(html)
 		_log(html)
 
+
+	}
+
+	function renderFrame(html) {
 		$('iframe').replaceWith('<iframe>') // clear js context, but chrome console changes
 		var fd = $('iframe')[0].contentWindow.document
 		fd.write(html)
@@ -607,23 +574,28 @@ html
 </script>
 <script>
 // 这里的函数需要既可以在node运行(主要在node中), 又可以在网页运行, 因此不能用$
-function run() {
+function run(mod, cb) {
 	// 第一步, 入口mod, 一般入口mod为grid
 	// 要注意的是这些函数应该都是异步的, 我们需要从数据库获取mod的信息
-	var mod = {
+	mod = mod || {
 		modid: 'grid'
 	}
-	var test = [mod, mod, mod]
+	//var test = [mod, mod, mod]
 	findMods(mod, function() {
-		console.log(mod)
+		//console.log(mod)
+
 		// 为什么要分成两部? 因为编译的时候, 完全可以locals是一个值, 即独立的编译后的不需要请求数据库的单独模块
 		// 获取全部mods中的jade, js, less
-		var html = compile(mod) // final html
+		compile(mod, function(err, html) {
+			//console.log(mod, html)
+			cb(null, html)
+		})
+
 	})
 
 }
 
-function compile(mod) {
+function compile(mod, cb) {
 	// jade is compile once(because it needs all mixin)
 	// but css and js are complied when met
 	// 这里有个问题, 带有变量的css, 没法让其他组件通用, 比如一个轮播6张图, 一个轮播7张图
@@ -647,9 +619,9 @@ function compile(mod) {
 			//document.write(ret)
 			html = htmlParser($('#tmpl').html(), {js: js, css: css, html: html, pretty: true})
 			//console.log(html)
-			document.write(html)
-			document.close()
-			
+			//document.write(html)
+			//document.close()
+			cb(null, html)
 		})
 
 	})
@@ -698,7 +670,7 @@ function getCssJs(hash, cb) {
 	var css = [], js = [] // css should comiple, js only runtime object
 	//console.log(111, hash)
 	for (var k in hash) {
-		console.log(222, hash[k])
+		//console.log(222, hash[k])
 		var data = hash[k].data
 		var cssStr = hash[k].css
 		var cssDeclare = []
@@ -714,8 +686,6 @@ function getCssJs(hash, cb) {
 		// js在去yaml的时候已经拼好了
 		js.push('["' + k + '", ' + hash[k].js + ']')
 	}
-	//console.log(js)
-	//console.log(css)
 	css = cssParser(css.join('\n'))
 	js = 'var mods2run = [' + js.join(', ') + ']'
 	cb(null, css, js)
@@ -750,7 +720,7 @@ function fixMod(mod, cb) {
 		}
 		extend(mod, res, {
 			js: js,
-			data: data,
+			data: data || {}, // never empty
 			fixed: true
 		})
 		cb(null)
@@ -760,9 +730,8 @@ function fixMod(mod, cb) {
 function findMods(o, cb) {
 	if (o.modid && !o.fixed) {
 		fixMod(o, function() {
-			findMods(o.data, cb)
+			o.data ? findMods(o.data, cb) : cb()// fix its data too
 		})
-		// fix its data to
 		return
 	}
 	var count = 1
@@ -783,7 +752,6 @@ function findMods(o, cb) {
 
 var mods = {} // save mod hash
 function getMod(id, cb) {
-	console.log(id)
 	if (mods[id]) return cb(null, mods[id])
 	var pages = JSON.parse(localStorage.pages)
 	var ret = pages.filter(function(a, i) {
@@ -809,7 +777,7 @@ function extend(a) {
 	return a
 }
 
-run()
+//run()
 </script>
 <script src='../pub/less.min.js'></script>
 </html>

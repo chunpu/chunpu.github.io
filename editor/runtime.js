@@ -1,4 +1,5 @@
 $(function() {
+  if (!window.mods2run) return
   for (var i = 0, a; a = mods2run[i]; i++) {
     $('.' + a[0]).each(function() {
       run(this, a[1])
